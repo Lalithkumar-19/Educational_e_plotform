@@ -1,0 +1,70 @@
+.forum {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .forum_heading {
+        margin-top: 10px;
+        width: max-content;
+
+        @media(width<=700px) {
+            width: 100%;
+            padding-left: 5px;
+        }
+
+    }
+
+    .course_questions {
+        display: flex;
+        background-color: white;
+        border-radius: 20px;
+        padding: 4px;
+        flex-direction: column;
+        margin-bottom: 12px;
+
+        .question {
+            display: flex;
+            flex-direction: column;
+            padding: 4px;
+
+            .question_inbrief {
+                text-align: justify;
+
+            }
+
+            .questioner_info {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+
+                .questioner_details {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 3px;
+                    align-items: center;
+
+                    .questioner_pic {
+                        width: 40px;
+                        height: 40px;
+                    }
+
+                    .questioner_name_role {
+                        display: flex;
+                        flex-direction: column;
+                        margin-left: 5px;
+                        gap: 2px;
+
+                        .questioner_name {
+                            font-size: 12px;
+
+                            font-weight: 700;
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+}
