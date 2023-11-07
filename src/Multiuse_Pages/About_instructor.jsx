@@ -5,13 +5,17 @@ import pic from "../assets/developerpic.jpg"
 import Coursecard from "../Pages/Coursecard";
 import Navbar from "../Pages/Navbar";
 import Contactpage from "../Pages/FooterPage";
+import { useParams } from "react-router-dom";
 
 function About_instructor() {
+    const params=useParams();
+
 
     return (
         <div className="about_instructor">
             <Navbar/>
             <span className="heading">Instructor Details</span>
+            {params.id}
             <span className="sub_heading">Home/<span className="sub_sub_heading">Instructor</span>
             
             </span>

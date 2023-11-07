@@ -21,6 +21,11 @@ import Loginpage from "./Loginpages/Loginpage"
 import Course_list from "./Course_list/Course_list"
 import Contact_page from "./Contact_page/Contact_page"
 import Instructor_apply from "./Instructor_Apply/Instructor_apply"
+import Admin from "./AdminPanels/Admin"
+import OrdersPage from "./UsersPFPages/Orderspage"
+import Dynamic_application_shower from "./Modals/Dynamic_application_shower"
+import Instructor_panel from "./AdminPanels/Instructor_panel"
+import Profile from "./Admin_instructor/Profile"
 
 function App() {
 
@@ -46,6 +51,8 @@ function App() {
           {/* responsive done */}
           <Route Component={All_Instructors} path="/instructors" />
           <Route Component={About_instructor} path="/instructors/about_instructor" />
+          <Route Component={About_instructor} path="/instructors/about_instructor/:id" />
+
           {/* responsive done */}
 
           {/* <Route Component={Customer_review} path="/customerreview" /> */}
@@ -110,6 +117,20 @@ function App() {
           <Route path="/contactUs" Component={Contact_page} />
           {/* responsvedone */}
           <Route path="/apply_instructor" element={<Instructor_apply header_footer={true} />} />
+
+
+          <Route path="/admin" Component={Admin} />
+          <Route path="admin/application_see/:id" Component={Dynamic_application_shower} />
+
+
+          <Route path="/myorders" Component={OrdersPage} />
+
+
+          <Route path="/instructor_panel" Component={Instructor_panel}/>
+
+
+
+          <Route path="/profile"Component={Profile}/>
 
         </Routes>
 

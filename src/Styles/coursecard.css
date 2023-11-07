@@ -10,6 +10,7 @@
      max-height:435px;
      min-height: 450px;
      flex-basis: 33.33333%;
+     flex: 0 1 160px;
      @media(601px<=width<=990px){
         flex-basis: auto;
         max-width: 270px;
@@ -148,4 +149,12 @@
      background-color: green;
      color: white;
 
+ }
+
+
+
+ #fav_course_icon{
+    background-color: transparent;
+    border-radius: 100%;
+    background-color: red;
  }

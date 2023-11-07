@@ -13,52 +13,27 @@ function Checkoutpage() {
     var totalProductsPrice = cartitems?.reduce(function (previousVal, currentVal) {
         return previousVal + currentVal.price;
     }, 0);
-    const [products,setProducts]=useState([
-        {
-          name:"I phone xr",
-          price:180000,
-          quantity:2,
-          
-        },
-        {
-          name:"Asus laptop",
-          price:80000,
-          quantity:1,
-          
-        },
-        {
-          name:"Noise buds ",
-          price:1900,
-          quantity:2,
-          
-        },
-        {
-          name:"I pad",
-          price:1000,
-          quantity:1,
-          
-        }
-      ])
-    
+   console.log(cartitems)
       const stripePromise = loadStripe("pk_test_51NytQZSCR13VXk2t4xS5scD4w4R3pGSOYJnkvFd21myYOBWy8Iurot26oRpg03sam9shpg9jePFNk1CQ50LoZvSS00cDpJcctn");
     
       const handlecheckout = async () => {
-        const lineItems = products.map((item) => {
+        const lineItems = cartitems.map((item) => {
           return {
             price_data: {
               currency: "inr",
               unit_amount: item.price * 100,
     
               product_data: {
-                name: item.name
+                name: item.itemname
               },
     
             },
-            quantity:item.quantity
+            quantity:item.quantity||2
           }
         })
         
         const{data}=await axios.post('http://localhost:5000/checkout',{lineItems});
+        console.log(data);
         const stripe=await stripePromise;
         await stripe.redirectToCheckout({sessionId:data.id});
      

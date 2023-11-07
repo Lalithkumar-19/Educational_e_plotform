@@ -6,7 +6,8 @@ const initialState = {
             price: 120,
             quantity: 2,
         },
-    ]
+    ],
+    wishList: []
 };
 
 
@@ -35,6 +36,16 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 cart: newbasket
+            }
+            break;
+
+        case 'add_to_wishlist':
+            alert(state.wishList);
+            console.log("wish list", state.wishList);
+            let newlist = state.wishList.length = 0 ? [action.payload] : [...state.wishList, action.payload];
+            return {
+                ...state,
+                wishList: newlist,
             }
             break;
         default:

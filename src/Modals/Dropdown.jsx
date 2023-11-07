@@ -2,6 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { Link } from 'react-router-dom';
 
 export default function Dropdown() {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -14,7 +15,7 @@ export default function Dropdown() {
   };
 
   return (
-    <div>
+    <div >
       <Button
       
         aria-controls={open ? 'basic-menu' : undefined}
@@ -35,7 +36,7 @@ export default function Dropdown() {
         }}
        >
         <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}>My Profile</MenuItem>
-        <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}>Orders</MenuItem>
+        <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}> <Link to={"/myorders"}>Orders</Link></MenuItem>
         <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}>Logout</MenuItem>
 
       </Menu>

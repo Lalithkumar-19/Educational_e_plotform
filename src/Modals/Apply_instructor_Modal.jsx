@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import "./Modal.css";
@@ -7,6 +6,7 @@ import { CancelRounded } from '@mui/icons-material';
 
 
 export default function Instructor_Modal() {
+    console.log("wf",application_id.id);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);

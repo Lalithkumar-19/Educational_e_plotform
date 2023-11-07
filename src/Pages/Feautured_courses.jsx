@@ -1,10 +1,10 @@
 import React from 'react'
 import "../Styles/featured_courses.css";
 import Coursecard from './Coursecard';
-import { Link } from 'react-router-dom';
 
 
 function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
+    const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     return (
         <div className='featured_courses' >
             <h3 className='category_heading'>{heading}</h3>
@@ -18,18 +18,31 @@ function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
             </div>
 
             <div className='courses_box'>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-                <Link to="/courses/overview"><Coursecard />  </Link>
-
-
-
-                {
+                {keys ? (
+                    <>
+                        {keys.map((m, index) => {
+                            { console.log('M', m) }
+                            return <Coursecard id={m} />
+                        })}
+                    </>
+                ) : ""}
+                {/* {
                     courses_restrict ? (
                         <>
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard />
+                            <Coursecard /> */}
+
+
+
+
+                {/* <Link to="/overview"><Coursecard />  </Link>
                             <Link to="/overview"><Coursecard />  </Link>
                             <Link to="/overview"><Coursecard />  </Link>
                             <Link to="/overview"><Coursecard />  </Link>
@@ -38,12 +51,11 @@ function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
                             <Link to="/overview"><Coursecard />  </Link>
                             <Link to="/overview"><Coursecard />  </Link>
                             <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                        </>
+                            <Link to="/overview"><Coursecard />  </Link> */}
+                {/* </>
                     ) : ""
 
-                }
+                } */}
 
 
             </div>

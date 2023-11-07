@@ -62,21 +62,21 @@ function Course_list() {
 
 
     useEffect(() => {
-        const getfilteredResult = async () => {
-            try {
-                const url = `http://localhost:5173/api/course_list?search=${search}&categories=${top_categories}&instructors=${top_instructors}&license=${license}&rating=${rating}`;
-                const { data } = await axios.get(url);
-                if (data) {
-                    setdata(data);
-                }
-                if (Screen_small) {
-                    Set_filtering_for_sm(false);
-                }
-            } catch (error) {
-                console.log("error occured while fetching from db for filters", error)
-            }
-        }
-        getfilteredResult();
+        // const getfilteredResult = async () => {
+        //     try {
+        //         const url = `http://localhost:5173/api/course_list?search=${search}&categories=${top_categories}&instructors=${top_instructors}&license=${license}&rating=${rating}`;
+        //         const { data } = await axios.get(url);
+        //         if (data) {
+        //             setdata(data);
+        //         }
+        //         if (Screen_small) {
+        //             Set_filtering_for_sm(false);
+        //         }
+        //     } catch (error) {
+        //         console.log("error occured while fetching from db for filters", error)
+        //     }
+        // }
+        // getfilteredResult();
     }, [search, top_categories, top_instructors, rating, license,]);
 
 

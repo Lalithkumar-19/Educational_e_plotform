@@ -15,7 +15,7 @@
     margin-left: 40px;
 }
 
-.navbar ul {
+.navbar .navbar_menu {
     display: flex;
     flex-direction: row;
     gap: 15px;
@@ -25,7 +25,7 @@
 
 }
 
-.navbar ul li {
+.navbar .navbar_menu .main {
     margin-left: 8px;
     color: black;
     font-weight: 500;
@@ -37,24 +37,26 @@
     align-self: center;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
-.navbar ul li::after {
-    content: "";
+.navbar .navbar_menu .main::after {
+    content:"";
     display: block;
     width: 100%;
     background-color: coral;
+    position: absolute;
     height: 2px;
     bottom: 0px;
-    left: 0px;
-    margin-top: 2px;
+    left: -2px;
+    margin-top: 0px;
     transform: scaleX(0%);
     transition: transform 0.1s ease-in 0.1s;
     transform-origin: center;
 
 }
 
-.navbar ul li:hover::after {
+.navbar .navbar_menu .main:hover::after {
     transform: scaleX(100%);
 
 }
@@ -67,20 +69,11 @@
     height: 35px;
     margin: 5px;
     border-radius: 9px;
-}
-
-
-
-.navbar button:nth-of-type(2) {
-    text-align: center;
-    width: 90px;
-    height: 35px;
-    margin: 5px;
-    border-radius: 9px;
-    border: 2px solid white;
-    background-color: coral;
-    color: white;
     cursor: pointer;
+    &:hover{
+        background-color: coral;
+        color: white;
+    }
 }
 
 a {
@@ -101,6 +94,14 @@ a {
         margin-right: 10px;
     }
 }
+
+#my_self{
+    & button:hover{
+        background-color: white;
+        color: blue;
+    }
+}
+
 
 @media(width<=600px) {
 

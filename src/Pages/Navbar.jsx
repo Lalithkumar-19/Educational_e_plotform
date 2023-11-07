@@ -5,7 +5,6 @@ import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useSelector } from 'react-redux';
-import Menubar from '../Modals/Menubar';
 import Dropdown from '../Modals/Dropdown';
 
 function Navbar() {
@@ -22,7 +21,7 @@ function Navbar() {
     <div className='navbar'>
       <h2 style={{ cursor: "pointer" }} onClick={() => { navigate("/"); location.reload(); }}>EduDev</h2>
       <ul className='navbar_menu'>
-        <li><Link to='/products' >Products</Link></li>
+        <li className='main'><Link to='/products' >Products</Link></li>
         <li className='main'><Link to={"/courses"}>Courses</Link> </li>
         <li className='main'><Link to={"/blogs"}>Blogs</Link> </li>
         <li className='main'><Link to={"/instructors"}>Instructors</Link></li>
@@ -33,8 +32,8 @@ function Navbar() {
 
       </ul>
       <div className='Activity_buttons'>
-      <div className='my_self'>
-        <Dropdown/>
+      <div className='my_self' id='my_self'>
+        <Dropdown />
         
       </div>
         <span className='bucket_icon'> <Link to="/yourcart">
