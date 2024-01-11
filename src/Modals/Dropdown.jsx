@@ -13,16 +13,22 @@ export default function Dropdown() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handle_Logout = () => {
+    localStorage.removeItem("userdata");
+    localStorage.removeItem("token");
+    window.location.reload();
+    setAnchorEl(null);
+  }
 
   return (
     <div >
       <Button
-      
+
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        sx={{width:"500px",background:"white",}}
+        sx={{ width: "500px", background: "white", }}
       >
         My Self
       </Button>
@@ -34,10 +40,10 @@ export default function Dropdown() {
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
-       >
-        <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}>My Profile</MenuItem>
-        <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}> <Link to={"/myorders"}>Orders</Link></MenuItem>
-        <MenuItem onClick={handleClose} sx={{marginTop:"10px"}}>Logout</MenuItem>
+      >
+        <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/profile"}>My Profile</Link></MenuItem>
+        <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/myorders"}>Orders</Link></MenuItem>
+        <MenuItem onClick={handle_Logout} sx={{ marginTop: "10px" }}>Logout</MenuItem>
 
       </Menu>
     </div>

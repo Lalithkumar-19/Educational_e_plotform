@@ -3,7 +3,6 @@ import {
     LineStyle,
     PermIdentity,
     Storefront,
-    AttachMoney,
     Man2Outlined,
     MoneyOutlined,
 } from "@mui/icons-material";

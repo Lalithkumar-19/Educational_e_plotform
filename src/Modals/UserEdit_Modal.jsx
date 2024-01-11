@@ -4,11 +4,11 @@ import User from '../AdminPanelPages/User';
 import { Visibility } from '@mui/icons-material';
 
 
-export default function UserEdit_Modal({ User_id, view }) {
+export default function UserEdit_Modal({ User_id, view ,data,setdata}) {
+
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    console.log("product id is", User_id);
 
 
     return (
@@ -32,7 +32,7 @@ export default function UserEdit_Modal({ User_id, view }) {
             >
                 <div id='modal_inner_main'>
                     <h1 style={{ textAlign: "center" }}>{view?"User Details":"User Update"}</h1>
-                    <User view={view} />
+                    <User view={view} id={User_id} rows={data} setrows={setdata} />
                 </div>
             </Modal>
         </div>

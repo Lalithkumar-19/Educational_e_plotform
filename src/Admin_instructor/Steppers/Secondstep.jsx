@@ -1,11 +1,18 @@
 import React from 'react';
 import './secondstep.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Player } from 'react-tuby';
 import 'react-tuby/css/main.css';
 import Course_videos from '../../Multiuse_Pages/Course_videos';
+import { useCourseContext } from '../ContextApi/Course_context';
+import { Toaster, toast } from 'react-hot-toast';
+import axios from 'axios';
+
 
 function Secondstep() {
+    const [uploadingStatus, setUploadingStatus] = useState(false);
+    const { state, dispatch } = useCourseContext();
+    console.log(state, "state")
     const [course_video, setCourse_video] = useState({
         title: '',
         videos: [],
@@ -27,42 +34,71 @@ function Secondstep() {
         }));
     };
 
-    const save_videos = () => {
-        if (course_video.title !== '' && course_video.videos.length > 0) {
-            setCourse_video({ title: '', videos: [] });
-        }
-    };
 
 
 
-    const handleSubmit = async () => {
-        const formData = new FormData();
-        formData.append('title', title);
+    const handlesubmit_Section = async () => {
+        if (localStorage.getItem("course_id") && course_video.title && course_video.videos.length !== 0) {
+            let formData = new FormData();
+            formData.append("title", course_video.title);
+            for (let i = 0; i < course_video.videos.length; i++) {
+                let file = course_video.videos[i];
+                formData.append('file', file);
+            }
+            let loading = toast.loading("uploading the content");
+            setUploadingStatus(true);
 
-        selectedFiles.forEach((file, index) => {
-            formData.append(`video-${index}`, file);
-        });
 
-        await fetch('/api/upload-video', {
-            method: 'POST',
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data);
-                // Handle the response from the server (e.g., display a success message)
+            await fetch(`http://localhost:5000/coursecontent?id=${localStorage.getItem("course_id")}&token=${localStorage.getItem("instructor-token")}`, {
+                method: 'POST',
+                body: formData
             })
-            .catch((error) => {
-                console.error(error);
-                // Handle errors
-            });
-    };
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    toast.remove(loading);
+                    setUploadingStatus(false);
+                    // setCourse_video({
+                    //     title: "",
+                    //     videos: [],
+                    // })
+                    toast.success("Content uploaded successfully");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toast.remove(loading);
+                    toast.error("Content uploading failed");
+                    setUploadingStatus(false);
+                });
+            setUploadingStatus(false);
+
+
+        }
+        else {
+            toast.error("please fill all fields required...");
+            toast.error("Something went wrong in uploading ...");
+        }
+    }
 
     console.log('main course videos ', course_video);
+
+    // useEffect(() => {
+    //     async function run() {
+    //         await axios.post(`http://localhost:5000/took?token=${localStorage.getItem("instructor-token")}`, { name: "lalith" }, {
+    //             withCredentials: true,
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         })
+    //     }
+    //     run();
+    // }, []);
+
 
     return (
         <div className="second_step">
             <h2> Add Course Videos</h2>
+            <Toaster />
             <div className="second_step_inner">
                 <label>Section Title</label>
                 <input
@@ -75,8 +111,10 @@ function Secondstep() {
 
                 />
                 <br />
+
+
                 <div className="videos_input_div" >
-                    <label>Videos for this Title</label>
+                    <label>Videos for this section</label>
                     <input
                         type="file"
                         accept="video/*"
@@ -88,7 +126,7 @@ function Secondstep() {
                     />
                     <span style={{ color: 'red' }}>Upload videos corresponding to this title in sequence</span>
                     <span style={{ color: 'red' }}>You can add some videos under this title before saving this section</span>
-                    <button className="save_button" id="button" type="button" onClick={save_videos}>
+                    <button className="save_button" id="button" type="button" disabled={uploadingStatus} onClick={handlesubmit_Section}>
                         Save
                     </button>
                 </div>
@@ -122,7 +160,30 @@ function Secondstep() {
                 )}
             </div>
             <h2 className='saved_sections'>Saved Sections</h2>
-            <Course_videos admin={true} />
+
+
+            {
+                state.curriculm
+                    ? state.curriculm.map((item, i) => (
+                        <>
+                            <div key={i}>
+                                <p key={i} style={{ fontSize: "19px", color: "chocolate", fontWeight: "800", width: "100%", textAlign: "start", marginBottom: "0px" }}>
+                                    {item.title}
+                                </p>
+                            </div>
+
+                            {
+                                item.curriculum_content.map((it, j) => (
+                                    <Course_videos key={j} title={""} desc={it.name} admin={true} />
+                                ))}
+                        </>
+                    ))
+                    : ""
+            }
+
+
+
+
         </div>
     );
 }

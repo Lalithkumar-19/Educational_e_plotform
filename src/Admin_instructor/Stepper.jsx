@@ -7,48 +7,37 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import { useState } from 'react';
 import FirstStep from './Steppers/FirstStep';
 import Secondstep from './Steppers/Secondstep';
 import ThirdStep from './Steppers/ThirdStep';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
-const steps = [
-    {
-        label: 'Course Title And Description',
-        description: "Enter course meta details ",
-        page: <FirstStep />
 
-    },
-    {
-        label: 'Course circuilum and videos content',
-        description: "Create sections for this course",
-        page: <Secondstep />
-    },
-    {
-        label: 'Course Notice board and Assignments board',
-        description: "create notice board and assigments for this course",
-        page: <ThirdStep />
-    },
-];
+
 
 export default function Stepper() {
-    const no_of_gains = 3;
-    const [details, setDetails] = useState({
-        title: "",
-        description: "",
-        gains: [],
-        requirements: [],
-        language: "",
-        duration: "",
-        skill_level: "",
-        deadline: "",
-        certificate: "",
-        tags: ""
-    })
+    const [first_step_completed, setFirst_step_completed] = useState(false);
 
 
+    const steps = [
+        {
+            label: 'Course Title And Description',
+            description: "Enter course meta details ",
+            page: <FirstStep completed={setFirst_step_completed} />
 
-
+        },
+        {
+            label: 'Course circuilum and videos content',
+            description: "Create sections for this course",
+            page: <Secondstep />
+        },
+        {
+            label: 'Course Notice board and Assignments board',
+            description: "create notice board and assigments for this course",
+            page: <ThirdStep />
+        },
+    ];
     const theme = useTheme();
     const [activeStep, setActiveStep] = React.useState(0);
     const maxSteps = steps.length;
@@ -60,6 +49,14 @@ export default function Stepper() {
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
+
+    useEffect(() => {
+        if (localStorage.getItem("first_step")) {
+            setFirst_step_completed(true);
+        } else {
+            setFirst_step_completed(false);
+        }
+    }, []);
 
     return (
         <Box sx={{ maxWidth: 400, flexGrow: 1 }}>
@@ -79,8 +76,8 @@ export default function Stepper() {
             </Paper>
             <Box sx={{ height: "auto", maxWidth: 900, width: '900px', p: 2 }}>
 
-             <p style={{color:"coral",textAlign:"start",margin:"0",fontSize:"17px"}}>   { steps[activeStep].description}</p>
-             {steps[activeStep].page}
+                <p style={{ color: "coral", textAlign: "start", margin: "0", fontSize: "17px" }}>   {steps[activeStep].description}</p>
+                {steps[activeStep].page}
 
             </Box>
             <MobileStepper
@@ -93,7 +90,7 @@ export default function Stepper() {
                     <Button
                         size="small"
                         onClick={handleNext}
-                        disabled={activeStep === maxSteps - 1}
+                        disabled={activeStep === maxSteps - 1 }
                     >
                         Next
                         {theme.direction === 'rtl' ? (

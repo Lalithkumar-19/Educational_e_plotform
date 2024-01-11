@@ -1,16 +1,13 @@
-import "./productList.css";
-import { productRows } from "./data";
-import { useEffect, useState } from "react";
-import Product_EditModal from "../Modals/Product_EditModal";
-import axios from "axios";
-import Bookcard from "../Multiuse_Pages/Bookcard";
-
-export default function ProductList({selected}) {
-  const [books, setBooks] = useState([]);
+import React, { useEffect, useState } from 'react'
+import "./all_books.css";
+import Bookcard from '../Multiuse_Pages/Bookcard';
+import axios from 'axios';
+function All_books() {
+    const [books, setBooks] = useState([]);
 
     useEffect(() => {
         async function fetch_books() {
-            const res = await axios.get("http://localhost:5000/Get_all_books?token=" + localStorage.getItem("instructor-token"));
+            const res = await axios.get("http://localhost:5000/Get_instrutor_books?token=" + localStorage.getItem("instructor-token"));
             if (res.status === 200) {
                 setBooks(res.data);
             }
@@ -35,3 +32,5 @@ export default function ProductList({selected}) {
         </div>
     )
 }
+
+export default All_books;

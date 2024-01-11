@@ -10,25 +10,30 @@ import Course_videos from '../Multiuse_Pages/Course_videos';
 import Navbar from './Navbar';
 import Contactpage from '../Pages/FooterPage';
 import { Player } from 'react-tuby';
+import axios from 'axios';
 
 
-function Courseplayer() {
+
+function Courseplayer({ }) {
+    const id = "65641b6ef8e65cfa8fe8bb7f";
     const [Active1, setActive1] = useState(true);
     const [Active2, setActive2] = useState(false);
     const [Active3, setActive3] = useState(false);
     const [Active4, setActive4] = useState(false);
 
-
+    const [course, setCourse] = useState({});
+    const [current_video, setCurrent_video] = useState(course.course_intro_video);
     const [page, setPage] = useState(0);
+    const [small_screen, setSmallscreen] = useState(false);
 
     function Info_toggler() {
         switch (page) {
             case 1:
                 return <Forum />
             case 2:
-                return <Notice_board />
+                return <Notice_board notice_board={course.noticeboard} />
             case 3:
-                return <Assignments />
+                return <Assignments assignments={course.assignments} />
             case 4:
                 return (
                     <>
@@ -49,6 +54,19 @@ function Courseplayer() {
 
 
     };
+
+    useEffect(() => {
+        async function get_course_Details() {
+            console.log("invoked...");
+            await axios.get("http://localhost:5000/get_single_course?id=" + id,).then(data => {
+                setCourse({ ...data.data[0] });
+                console.log(data.data);
+            }).catch(err => {
+                console.log(err);
+            })
+        }
+        get_course_Details();
+    }, [])
 
     function ChangeBgColor() {
         switch (page) {
@@ -88,7 +106,16 @@ function Courseplayer() {
 
         ChangeBgColor();
 
-    }, [page])
+    }, [page]);
+
+    useEffect(() => {
+        if (window.innerWidth <= 400) {
+            setSmallscreen(true);
+        }
+        else {
+            setSmallscreen(false);
+        }
+    })
 
 
     return (
@@ -97,7 +124,7 @@ function Courseplayer() {
             <div className='course_player_main'>
                 <section className='courseplayer_left'>
                     <div className='course_video_player'>
-                        <Player src={video} />
+                        <Player src={current_video ? current_video : video} pictureInPicture />
                     </div>
                     <section className='course_meta_details'>
                         <div className='course_creator_details'>
@@ -123,35 +150,60 @@ function Courseplayer() {
                         </div>
                     </section>
 
+                    {!small_screen && (
+                        <section className='course_main_headlines' id='course_main_headlines'>
+                            <span className='course_headline'>How to create your first digital product</span>
+                            <p className='course_main_desc'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni totam aut quam quaerat maiores modi nihil deleniti? Consequuntur voluptatibus perspiciatis, eligendi sit laboriosam delectus minus aspernatur magni a dolores quibusdam libero rerum. Ab, veniam optio hic dolores veritatis dolorem alias.</p>
+                            <div className='selector_buttons' id='vidoe_Player_selection_buttons'>
+                                <button id="buttons_in_course_video" style={{ backgroundColor: Active1 ? "coral" : "transparent" }} onClick={() => { setPage(1) }}>Forum</button>
+                                <button id="buttons_in_course_video" style={{ backgroundColor: Active2 ? "coral" : "transparent" }} onClick={() => { setPage(2) }}>Noticeboad</button>
+                                <button id="buttons_in_course_video" style={{ backgroundColor: Active3 ? "coral" : "transparent" }} onClick={() => { setPage(3) }}>Assignments</button>
+                                <button id="buttons_in_course_video" style={{ backgroundColor: Active4 ? "coral" : "transparent" }} onClick={() => { setPage(4) }}>Post Question</button>
+                            </div>
+                            <div className='search_bar_for_questions' id='search_bar_for_questions'>
+                                <span className='search_icon'><SearchRounded /></span>
+                                <input className='search_input' type='text' placeholder='Search Questions...' />
+                            </div>
 
-                    <section className='course_main_headlines' id='course_main_headlines'>
-                        <span className='course_headline'>How to create your first digital product</span>
-                        <p className='course_main_desc'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni totam aut quam quaerat maiores modi nihil deleniti? Consequuntur voluptatibus perspiciatis, eligendi sit laboriosam delectus minus aspernatur magni a dolores quibusdam libero rerum. Ab, veniam optio hic dolores veritatis dolorem alias.</p>
-                        <div className='selector_buttons' id='vidoe_Player_selection_buttons'>
-                            <button id="buttons_in_course_video" style={{ backgroundColor: Active1 ? "coral" : "transparent" }} onClick={() => { setPage(1) }}>Forum</button>
-                            <button id="buttons_in_course_video" style={{ backgroundColor: Active2 ? "coral" : "transparent" }} onClick={() => { setPage(2) }}>Noticeboad</button>
-                            <button id="buttons_in_course_video" style={{ backgroundColor: Active3 ? "coral" : "transparent" }} onClick={() => { setPage(3) }}>Assignments</button>
-                            <button id="buttons_in_course_video" style={{ backgroundColor: Active4 ? "coral" : "transparent" }} onClick={() => { setPage(4) }}>Post Question</button>
-                        </div>
-                        <div className='search_bar_for_questions' id='search_bar_for_questions'>
-                            <span className='search_icon'><SearchRounded /></span>
-                            <input className='search_input' type='text' placeholder='Search Questions...' />
-                        </div>
-
-                        {
-                            Info_toggler()
-                        }
-
-
-                    </section>
+                            {
+                                Info_toggler()
+                            }
 
 
+                        </section>
+
+                    )}
 
 
                 </section>
 
                 <section className='courseplayer_right'>
-                    <Course_videos />
+                    <Course_videos curiculm={course.curriculm} curr_video={setCurrent_video} />
+                    {
+                        small_screen && (
+                            <section className='course_main_headlines' id='course_main_headlines'>
+                                <span className='course_headline'>How to create your first digital product</span>
+                                <p className='course_main_desc'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni totam aut quam quaerat maiores modi nihil deleniti? Consequuntur voluptatibus perspiciatis, eligendi sit laboriosam delectus minus aspernatur magni a dolores quibusdam libero rerum. Ab, veniam optio hic dolores veritatis dolorem alias.</p>
+                                <div className='selector_buttons' id='vidoe_Player_selection_buttons'>
+                                    <button id="buttons_in_course_video" style={{ backgroundColor: Active1 ? "coral" : "transparent" }} onClick={() => { setPage(1) }}>Forum</button>
+                                    <button id="buttons_in_course_video" style={{ backgroundColor: Active2 ? "coral" : "transparent" }} onClick={() => { setPage(2) }}>Noticeboad</button>
+                                    <button id="buttons_in_course_video" style={{ backgroundColor: Active3 ? "coral" : "transparent" }} onClick={() => { setPage(3) }}>Assignments</button>
+                                    <button id="buttons_in_course_video" style={{ backgroundColor: Active4 ? "coral" : "transparent" }} onClick={() => { setPage(4) }}>Post Question</button>
+                                </div>
+                                <div className='search_bar_for_questions' id='search_bar_for_questions'>
+                                    <span className='search_icon'><SearchRounded /></span>
+                                    <input className='search_input' type='text' placeholder='Search Questions...' />
+                                </div>
+
+                                {
+                                    Info_toggler()
+                                }
+
+
+                            </section>
+
+                        )
+                    }
                 </section>
             </div>
             <Contactpage />

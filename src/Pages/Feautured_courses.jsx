@@ -1,10 +1,20 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import "../Styles/featured_courses.css";
 import Coursecard from './Coursecard';
-
+import axios from 'axios';
 
 function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
-    const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const keys = [1, 2];
+    const [courses, setCourses] = useState([]);
+    useEffect(() => {
+        async function Load_data() {
+            await axios.get("http://localhost:5000/get_all_courses").then((data) => {
+                console.log(data.data);
+                setCourses([...data.data]);
+            })
+        }
+        Load_data();
+    }, [])
     return (
         <div className='featured_courses' >
             <h3 className='category_heading'>{heading}</h3>
@@ -26,6 +36,33 @@ function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
                         })}
                     </>
                 ) : ""}
+
+
+
+                {
+
+                    courses.map((item,index) => {
+                        return (
+                            <>
+                                {
+                                    item && <Coursecard course_thumnail={item.course_thumbnail}
+                                        course_duration={item.course_duration}
+                                        course_name={item.course_name}
+                                        course_price={item.course_price}
+                                        id={ item._id}
+                                        skill_level={item.skill_level}
+                                        course_lectures={item.course_lectures}
+                                        key={index}
+
+                                    />
+                                }
+
+                            </>
+                        )
+                    })
+
+
+                }
                 {/* {
                     courses_restrict ? (
                         <>
@@ -38,6 +75,10 @@ function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
                             <Coursecard />
                             <Coursecard />
                             <Coursecard /> */}
+
+
+
+
 
 
 

@@ -25,6 +25,7 @@ import Admin from "./AdminPanels/Admin"
 import OrdersPage from "./UsersPFPages/Orderspage"
 import Dynamic_application_shower from "./Modals/Dynamic_application_shower"
 import Instructor_panel from "./AdminPanels/Instructor_panel"
+import Profilepage from "./UsersPFPages/ProfilePage"
 import Profile from "./Admin_instructor/Profile"
 
 function App() {
@@ -34,9 +35,10 @@ function App() {
       <BrowserRouter future={{ v7_startTransition: true }}>
         <Routes>
           <Route Component={Homepage} path="/" />
+          <Route Component={Profilepage} path="/profile"/>
           {/* responsive done */}
           {/* courses routes */}
-          <Route Component={Online_Course_overview} path="/courses/overview" />
+          <Route Component={Online_Course_overview} path="/courses/overview/:id" />
           {/* responsive done */}
           <Route Component={Courseplayer} path="/courseplayer" />
           {/* responsive done */}
@@ -57,10 +59,10 @@ function App() {
 
           {/* <Route Component={Customer_review} path="/customerreview" /> */}
 
-          {/* Books routes */}
+          {/* Books routes */}  
           {/* responsive done */}
           <Route Component={Bookshopping} path="/bookshopping" />
-          <Route Component={Bookshopping_details} path="/bookshopping/selected_book" />
+          <Route Component={Bookshopping_details} path="/bookshopping/selected_book/:id" />
 
           {/* cartpages routes */}
           {/* responsive done */}
@@ -80,6 +82,8 @@ function App() {
           <Route Component={Loginpage} path="/login" />
 
 
+          {/* <Route path="/course_list" Component={Course_list} /> */}
+          <Route path="/course_list/:search_word" Component={Course_list} />
           <Route path="/course_list" Component={Course_list} />
 
 
@@ -125,12 +129,14 @@ function App() {
 
           <Route path="/myorders" Component={OrdersPage} />
 
+          {
+            localStorage.getItem("instructor_access") ? <Route path="/instructor_panel" Component={Instructor_panel} /> : ""
 
-          <Route path="/instructor_panel" Component={Instructor_panel}/>
+          }
 
 
 
-          <Route path="/profile"Component={Profile}/>
+          <Route path="/profile" Component={Profile} />
 
         </Routes>
 

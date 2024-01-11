@@ -1,86 +1,61 @@
+import { useEffect, useState } from "react";
 import UserEdit_Modal from "../Modals/UserEdit_Modal";
 import "./widgetSm.css";
 import { Visibility } from "@mui/icons-material";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { CircularProgress } from "@mui/material";
 
 export default function WidgetSm() {
+  const [data, setData] = useState([]);
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http:///localhost:5000/get_all_new_joined_users");
+      if (res.status === 200) {
+        setData([...res.data]);
+      }
+      else {
+        toast.error("unable to connect to our servers");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   return (
     <div className="widgetSm">
       <span className="widgetSmTitle">New Join Members</span>
       <ul className="widgetSmList">
-        <li className="widgetSmListItem">
-          <img
-            src="https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&dpr=2&w=500"
-            alt=""
-            className="widgetSmImg"
-          />
-          <div className="widgetSmUser">
-            <span className="widgetSmUsername">Anna Keller</span>
-            <span className="widgetSmUserTitle">Software Engineer</span>
-          </div>
-          <UserEdit_Modal view={true} />
-        </li>
 
+        {
+          data.length === 0 ? <CircularProgress /> : (
+            <>
+              {
+                data.map((item, i) => {
+                  return (
+                    <li className="widgetSmListItem">
+                      <img
+                        src={"http://localhost:5000/" + item.dp}
+                        alt="dp"
+                        className="widgetSmImg"
+                      />
+                      <div className="widgetSmUser">
+                        <span className="widgetSmUsername">{item.name}</span>
+                        <span className="widgetSmUserTitle">{item.profession}</span>
+                      </div>
+                      <UserEdit_Modal view={true} data={item} User_id={item._id} />
+                    </li>
+                  )
+                })
+              }
 
-        <li className="widgetSmListItem">
-          <img
-            src="https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&dpr=2&w=500"
-            alt=""
-            className="widgetSmImg"
-          />
-          <div className="widgetSmUser">
-            <span className="widgetSmUsername">Anna Keller</span>
-            <span className="widgetSmUserTitle">Software Engineer</span>
-          </div>
-          <button className="widgetSmButton">
-            <Visibility className="widgetSmIcon" />
-            Display
-          </button>
-        </li>
-        <li className="widgetSmListItem">
-          <img
-            src="https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&dpr=2&w=500"
-            alt=""
-            className="widgetSmImg"
-          />
-          <div className="widgetSmUser">
-            <span className="widgetSmUsername">Anna Keller</span>
-            <span className="widgetSmUserTitle">Software Engineer</span>
-          </div>
-          <button className="widgetSmButton">
-            <Visibility className="widgetSmIcon" />
-            Display
-          </button>
-        </li>
-        <li className="widgetSmListItem">
-          <img
-            src="https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&dpr=2&w=500"
-            alt=""
-            className="widgetSmImg"
-          />
-          <div className="widgetSmUser">
-            <span className="widgetSmUsername">Anna Keller</span>
-            <span className="widgetSmUserTitle">Software Engineer</span>
-          </div>
-          <button className="widgetSmButton">
-            <Visibility className="widgetSmIcon" />
-            Display
-          </button>
-        </li>
-        <li className="widgetSmListItem">
-          <img
-            src="https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&dpr=2&w=500"
-            alt=""
-            className="widgetSmImg"
-          />
-          <div className="widgetSmUser">
-            <span className="widgetSmUsername">Anna Keller</span>
-            <span className="widgetSmUserTitle">Software Engineer</span>
-          </div>
-          <button className="widgetSmButton">
-            <Visibility className="widgetSmIcon" />
-            Display
-          </button>
-        </li>
+            </>
+          )
+        }
       </ul>
     </div>
   );

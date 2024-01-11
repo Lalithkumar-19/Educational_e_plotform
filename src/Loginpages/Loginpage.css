@@ -26,7 +26,7 @@
         flex-direction: row;
         width: 100%;
 
-        @media(width<=400px) {
+        @media(width<=600px) {
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -40,7 +40,7 @@
             align-items: center;
             justify-content: center;
 
-            @media(width<=400px) {
+            @media(width<=600px) {
                 width: 100%;
 
                 & img {
@@ -64,7 +64,7 @@
             margin-right: 10px;
 
 
-            @media(width<=400px) {
+            @media(width<=600px) {
                 width: 100%;
                 height: fit-content;
             }
@@ -76,7 +76,7 @@
                 border-radius: 10px;
 
 
-                @media(width<=400px) {
+                @media(width<=600px) {
                     width: 90%;
                     align-self: center;
                     align-items: center;
@@ -98,9 +98,10 @@
                     font-weight: 600;
                     font-size: 15px;
                     margin-bottom: 5px;
-                    @media(width<=400px) {
+
+                    @media(width<=600px) {
                         align-self: flex-start;
-                        
+
                     }
 
                 }
@@ -115,10 +116,11 @@
                     background-color: gainsboro;
                     color: black;
                     margin-bottom: 10px;
-                    @media(width<=400px) {
+
+                    @media(width<=600px) {
                         align-self: flex-start;
                         width: 100%;
-                        
+
                     }
 
                 }
@@ -139,7 +141,8 @@
                     align-items: center;
                     justify-content: center;
                 }
-                .Login_button::selection{
+
+                .Login_button::selection {
                     background-color: coral;
                 }
 
@@ -172,11 +175,7 @@
                         gap: 10px;
 
                         .google_login {
-                            width: 50%;
-                        }
-
-                        .fb_login {
-                            width: 50%;
+                            width: 100%;
                         }
                     }
 
@@ -186,7 +185,8 @@
             .new_account {
                 margin-top: 2px;
                 margin-bottom: 8px;
-                @media(width<=400px) {
+
+                @media(width<=600px) {
                     margin: 0 auto;
                     margin-bottom: 12px;
                 }

@@ -13,6 +13,8 @@ import WidgetLg from '../AdminpanelComponents/WidgetLg';
 import Courses from "../Pages/Feautured_courses"
 import Instructors_manage from '../AdminPanelPages/Instructors_manage';
 import Application_manage from '../AdminPanelPages/Application_manage';
+import OrdersShowing_page from '../AdminPanelPages/OrdersShowing_page';
+import All_courses from '../AdminPanelPages/All_courses';
 
 function Admin() {
   const [Selected, setSelected] = useState(1);
@@ -23,11 +25,11 @@ const handlepages=()=>{
     case 2: return <UserList/>;
     case 3: return <NewUser />;
     case 4: return <ProductList/>;
-    case 5: return <NewProduct />;
-    case 6: return <WidgetLg />;
-    case 7: return <Courses courses_restrict={true} heading={"Courses"}  desc={"Admin Panel controls"} />;
+    case 5: return <WidgetLg />;
+    case 6: return <All_courses/>;
     case 8: return <Instructors_manage/>;
     case 9: return <Application_manage/>;
+    case 10:return <OrdersShowing_page/>
     default: return <AdminHome/>;
 
   }

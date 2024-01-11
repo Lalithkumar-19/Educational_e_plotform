@@ -1,53 +1,77 @@
+import { useState } from "react";
 import "./newUser.css";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
 
 export default function NewUser() {
+  const [data, setData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    Addresses: "",
+    profession: "",
+  })
+
+  const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value })
+  }
+
+  const handle_Create_User = async () => {
+    try {
+      if (data.Addresses !== "" && data.email !== "" && data.name !== "" && data.password !== "" && data.profession !== "") {
+        const response = await axios.post("http://localhost:5000/create_new_user",data);
+        if (response.status == 201) {
+          toast.success("created a user");
+          setData({
+            name: "",
+            email: "",
+            password: "",
+            Addresses: "",
+            profession: "",
+          });
+        }
+        else{
+          toast.error("internal error occured ");
+        }
+
+      }
+      else {
+        toast.error("please fill all details")
+      }
+
+
+    } catch (error) {
+      toast.error("internal error occured,while creating");
+    }
+  }
   return (
     <div className="newUser">
+      <Toaster />
       <h1 className="newUserTitle">New User</h1>
       <form className="newUserForm">
         <div className="newUserItem">
           <label>Username</label>
-          <input type="text" placeholder="john" />
-        </div>
-        <div className="newUserItem">
-          <label>Full Name</label>
-          <input type="text" placeholder="John Smith" />
+          <input type="text" placeholder="john" name="name" value={data.name} required onChange={handleChange} />
         </div>
         <div className="newUserItem">
           <label>Email</label>
-          <input type="email" placeholder="john@gmail.com" />
+          <input type="email" placeholder="john@gmail.com" name="email" value={data.email} onChange={handleChange} required />
         </div>
         <div className="newUserItem">
           <label>Password</label>
-          <input type="password" placeholder="password" />
+          <input type="password" placeholder="password" name="password" value={data.password} onChange={handleChange} required />
         </div>
-        <div className="newUserItem">
-          <label>Phone</label>
-          <input type="text" placeholder="+1 123 456 78" />
-        </div>
+
         <div className="newUserItem">
           <label>Address</label>
-          <input type="text" placeholder="New York | USA" />
+          <input type="text" placeholder="New York | USA" name="Addresses" value={data.Addresses} onChange={handleChange} required />
         </div>
         <div className="newUserItem">
-          <label>Gender</label>
-          <div className="newUserGender">
-            <input type="radio" name="gender" id="male" value="male" />
-            <label for="male">Male</label>
-            <input type="radio" name="gender" id="female" value="female" />
-            <label for="female">Female</label>
-            <input type="radio" name="gender" id="other" value="other" />
-            <label for="other">Other</label>
-          </div>
+          <label>profession</label>
+          <input type="text" placeholder=" full stack engineer" name="profession" value={data.profession} onChange={handleChange} required />
         </div>
-        <div className="newUserItem">
-          <label>Active</label>
-          <select className="newUserSelect" name="active" id="active">
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
-        <button className="newUserButton">Create</button>
+
+        <button className="newUserButton" type="button" onClick={handle_Create_User}>Create</button>
       </form>
     </div>
   );

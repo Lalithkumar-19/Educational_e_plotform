@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Coursecard from '../Pages/Coursecard';
-import "./courses_by_ins.css";
+import "../Admin_instructor/courses_by_ins.css";
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
-function Courses_by_ins() {
+function All_courses() {
   const [all_courses, setAll_courses] = useState([]);
   async function fetch_courses() {
     try {
-      const response = await axios.get("http://localhost:5000/get_all_courses_by_ins?token=" + localStorage.getItem("instructor-token"));
+      const response = await axios.get("http://localhost:5000/get_all_courses?token=" + localStorage.getItem("instructor-token"));
       if (response.status === 200) {
         setAll_courses([...response.data]);
       }
@@ -43,4 +43,4 @@ function Courses_by_ins() {
   )
 }
 
-export default Courses_by_ins;
+export default All_courses;

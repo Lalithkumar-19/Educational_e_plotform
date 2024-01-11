@@ -5,10 +5,14 @@ import Education_login_pic from "../assets/Education_login.png";
 import Contactpage from '../Pages/FooterPage';
 import { useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
 
 
 function Loginpage() {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [instructor_login, setInstructor_login] = useState(false);
     const [signUp, setSignup] = useState(true);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -19,43 +23,35 @@ function Loginpage() {
         email: false,
         password: false,
     })
-
+    console.log(instructor_login, "rkfgkj");
 
     console.log({ name, email, password });
 
-    const handleLogin = async (ev) => {
-        // if (name == "") {
-        //     setErrors({ ...errors, name: true });
-        // }
-        // if (email == "") {
-        //     setErrors({ ...errors, email: true });
-        // }
-        // if(password==""){
-        //     setErrors({ ...errors, password: true })
-        // }
-
-        await fetch(`http://localhost:5000/${signUp ? "signup" : "login"}`, {
-            method: "POST",
-            headers: {
-                'Content-Type': "application/json"
-            },
-            body: JSON.stringify({ name, email, password }),
-
-        }).then((res) => {
-
-            if (res.ok) {
+    const handleLogin = async () => {
+        const login_user_url = `http://localhost:5000/${signUp ? "signup" : "login"}`;
+        const instructor_login_url = 'http://localhost:5000/login-instructor';
+        await axios.post(instructor_login ? instructor_login_url : login_user_url, { name, email, password }).then((res) => {
+            if (res.status === 200) {
                 setLoggedIn(true);
                 if (signUp) {
                     toast.success("Signed Up successfully");
                     setSignup(false);
                 }
-                else {
+
+                if (instructor_login) {
+                    localStorage.setItem("instructor-token", res.data);
+                    navigate("/instructor_panel");
+                } else {
+                    localStorage.setItem("userdata", res.data.data);
+                    localStorage.setItem("token", res.data.token);
                     toast.success("Congrats Logged in successfully ");
                     navigate("/");
                 }
+                dispatch({ type: "Userpresence", payload: 1 });
                 setName("");
                 setEmail("");
                 setPassword("");
+                setInstructor_login(false);
             }
             else {
                 setLoggedIn(false);
@@ -118,6 +114,11 @@ function Loginpage() {
                         <label className='login_label'>Password</label>
                         <input type='password' placeholder=' 🔐 Example@12345' autoComplete='off' className='login_inputs login_password_input' value={password} onChange={(e) => setPassword(e.target.value)} />
 
+                        {!signUp ? (<div style={{ display: "flex", flexDirection: "row", gap: "4px", alignItems: "center", justifyContent: "start" }}>
+                            <input type='checkbox' checked={instructor_login} onChange={(e) => setInstructor_login(e.target.checked)} />
+                            <span className='instructor_login' style={{ color: "coral" }} >Instructor?</span>
+                        </div>) : ""}
+
                         {errors.password && (
                             <>
                                 <span style={{ color: "red", marginBottom: "2px" }}>Password is required !</span>
@@ -133,12 +134,10 @@ function Loginpage() {
                         <div className='other_sign_up_options'>
                             <span className='Login_with_google'>Or,Sign up with Google</span>
                             <div className='sing_up_buttons'>
-                                <button className='google_login' id='button'>Google</button>
-                                <button className='fb_login' id='button'>Facebook</button>
+                                <button className='google_login' id='button' type='button'>Google</button>
                             </div>
 
                         </div>
-
 
                     </form>
                     <div className='new_account'>

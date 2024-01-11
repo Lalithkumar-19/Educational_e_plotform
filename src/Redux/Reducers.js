@@ -7,7 +7,8 @@ const initialState = {
             quantity: 2,
         },
     ],
-    wishList: []
+    wishList: [],
+    userpresence: false,
 };
 
 
@@ -48,6 +49,13 @@ const reducer = (state = initialState, action) => {
                 wishList: newlist,
             }
             break;
+        case 'Userpresence':
+            return {
+                ...state,
+                userpresence: true,
+            }
+            break;
+
         default:
             return state;
             break;

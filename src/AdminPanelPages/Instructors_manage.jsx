@@ -1,101 +1,122 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { DeleteOutline } from '@mui/icons-material';
+import axios from 'axios';
+import UserEdit_Modal from '../Modals/UserEdit_Modal';
+import toast, { Toaster } from 'react-hot-toast';
+import { CircularProgress } from '@mui/material';
 
 
-const handleDelete = (id) => {
-  console.log(id);
-}
 const new_window = (id) => {
-  window.open("/instructors/about_instructor/"+id , "application_viewing_window", "height=400,width=800", "_blank");
+  window.open("/instructors/about_instructor/" + id, "application_viewing_window", "height=400,width=800", "_blank");
 }
-
-const columns = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'firstName',
-    headerName: 'First name',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'lastName',
-    headerName: 'Last name',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'DOB',
-    headerName: 'DOB',
-    type: 'number',
-    width: 110,
-    editable: true,
-  },
-
-  {
-    field: "action",
-    headerName: "Action",
-    width: 150,
-    renderCell: (params) => {
-      return (
-        <>
-          <DeleteOutline
-            className="userListDelete"
-            onClick={() => handleDelete(params.row.id)}
-          />
-        </>
-      );
-    },
-  },
-  {
-    field: "Overview",
-    headerName: "Overview",
-    width: 150,
-    renderCell: (params) => {
-        return (
-            <>
-                <span style={{ cursor: "pointer" }} onClick={() => { new_window(params.row.id) }}>See</span>
-            </>
-        );
-    },
-},
-
-];
-
-const rows = [
-  { id: 1, lastName: 'Snow jhjhi', firstName: 'Jon', DOB: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 4, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 5, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 6, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 7, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 8, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 9, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 10, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-  { id: 11, lastName: 'Lannister', firstName: 'Cersei', DOB: 42 },
-
-];
 
 export default function Instructors_manage() {
+  const [data, setData] = React.useState([]);
+
+  const Fetch_All_Users = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/Fetch_all_instructors");
+      if (res.status === 200) {
+        const row_data = res.data.map((item, index) => ({
+          ...item,
+          id: index + 1, // Assuming your IDs should start from 1
+        }));
+        setData(row_data);
+      }
+      else {
+        toast.error("internal server error occured");
+      }
+
+    } catch (error) {
+      toast.error("we are unable to connect to our servers");
+      console.log(error);
+    }
+  }
+  React.useEffect(() => {
+    Fetch_All_Users();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      let res = await axios.put("http://localhost:5000/delete_single_instructor?id=" + id);
+      if (res.status === 200) {
+        toast.success("deleted successfully");
+        setData(data.filter((item) => item._id !== id));
+      }
+      else {
+        toast.error("internal error occured");
+      }
+    } catch (error) {
+      toast.error("connection to server failed");
+    }
+  }
+
+
+  const columns = [
+    { field: "_id", headerName: "ID", width: 90 },
+    {
+      field: "instructor_name",
+      headerName: "instructor Name",
+      width: 200,
+      renderCell: (params) => {
+        return (
+          <div className="userListUser">
+            <img className="userListImg" src={"http://localhost:5000/" + params.row.instructor_pic} alt="" />
+            {params.row.instructor_name}
+          </div>
+        );
+      },
+    },
+    { field: "email", headerName: "Email", width: 200 },
+    { field: "profession", headerName: "Profession", width: 200 },
+
+    {
+      field: "action",
+      headerName: "Action",
+      width: 150,
+      renderCell: (params) => {
+        return (
+          <>
+            <UserEdit_Modal data={data} setdata={setData} User_id={params.row._id} key={params._id} />
+
+            <DeleteOutline
+              className="userListDelete"
+              onClick={() => handleDelete(params.row._id)}
+            />
+          </>
+        );
+      },
+
+    },
+    {
+      field: "Overview",
+      headerName: "Overview",
+      width: 150,
+      renderCell: (params) => {
+        return (
+          <>
+            <span style={{ cursor: "pointer" }} onClick={() => { new_window(params.row._id) }}>See</span>
+          </>
+        );
+      }
+    },
+  ]
+
   return (
-    <Box sx={{ height: 600, width: '100%' }}>
-      <h1>Instructors Management</h1>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 7,
-            },
-          },
-        }}
-        pageSizeOptions={[7]}
-        checkboxSelection
-        disableRowSelectionOnClick
-      />
-    </Box>
+    <div className="userList">
+      <Toaster gutter={3} />
+
+      {
+        data.length > 0 ? (<>
+          <DataGrid
+            rows={data}
+            disableSelectionOnClick
+            columns={columns}
+            pageSize={8}
+          />
+        </>) : (<div style={{ textAlign: "center" }}><CircularProgress color="primary" content="Fetching data" /></div>)
+      }
+    </div>
   );
 }

@@ -10,8 +10,11 @@ import coursespic from "../assets/courses.jpg";
 import { FavoriteBorder, PaymentOutlined, ShoppingCart } from '@mui/icons-material';
 import ShareIcon from '@mui/icons-material/Share';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 function Bookshopping_details() {
+    const params = useParams();
     const [Screen_small, setScreen_small] = useState(false);
     useEffect(() => {
         if (window.innerWidth <= 600) {
@@ -22,22 +25,37 @@ function Bookshopping_details() {
         }
     }, [])
 
-    const [pics] = useState([bookpic, developerpic, coursespic]);
+    const [book, setBook] = useState({});
+    const [pics, setPics] = useState([]);
+
+    useEffect(() => {
+        async function Fetch_Books() {
+            const res = await axios.get("http://localhost:5000/Get_single_book?id=" + params.id);
+            if (res.status === 200) {
+                setBook(res.data);
+                setPics([...res.data.book_pics])
+            }
+        }
+        Fetch_Books();
+    }, []);
+
+    console.log(book);
+
     const [Currbackdrop, setCurr_backdrop] = useState(0);
     const [BookQuantity, setBookQuantity] = useState(1);
 
 
 
 
-    function book_description() {
-        return <p style={{ textAlign: "justify", lineHeight: "25px", marginTop: "12px", paddingRight: "19px" }}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Asperiores odit iste consectetur tempora! Nemo voluptatum ea qui ab quidem unde saepe vero! Praesentium impedit expedita alias nihil ducimus ipsam in, adipisci asperiores sequi esse distinctio assumenda maiores aliquam minus omnis voluptate laborum laboriosam pariatur cupiditate minima harum ab odio? Voluptate!</p>
+    function book_description(desc) {
+        return <p style={{ textAlign: "justify", lineHeight: "25px", marginTop: "12px", paddingRight: "19px" }}>{desc}</p>
     }
 
-    function Additional_information_about_book() {
+    function Additional_information_about_book(add_info) {
         return (
 
             <>
-                <p style={{ textAlign: "justify", lineHeight: "25px", marginTop: "12px", paddingRight: "19px" }}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Asperiores odit iste consectetur tempora! Nemo voluptatum ea qui ab quidem unde saepe vero! Praesentium impedit expedita alias nihil ducimus ipsam in, adipisci asperiores sequi esse distinctio assumenda maiores aliquam minus omnis voluptate laborum laboriosam pariatur cupiditate minima harum ab odio? Voluptate! Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt veniam sapiente optio suscipit, deleniti libero amet nesciunt a consectetur assumenda ipsum quas. Consequuntur maiores facilis vero adipisci. Sapiente, quae. Quod, culpa! Nobis aperiam amet quis nisi qui dolore pariatur ut blanditiis. Dignissimos corrupti nemo debitis labore, corporis id quos recusandae officia explicabo eveniet quam quia culpa sint iure perferendis repudiandae consequatur, inventore quidem dolores magnam obcaecati assumenda, quas asperiores. Soluta, praesentium esse. Beatae perspiciatis quaerat nostrum necessitatibus odio. Repellat nulla ut quaerat molestias ipsa. Fuga quaerat exercitationem accusamus incidunt quae?</p>
+                <p style={{ textAlign: "justify", lineHeight: "25px", marginTop: "12px", paddingRight: "19px" }}>{add_info}</p>
             </>
         )
     }
@@ -51,13 +69,13 @@ function Bookshopping_details() {
     function Info_toggler() {
         switch (page) {
             case 1:
-                return book_description();
+                return book_description(book.description);
             case 2:
-                return Additional_information_about_book();
+                return Additional_information_about_book(book.Additional_info);
             case 3:
                 return <Reviewpage />
             default:
-                return book_description();
+                return book_description(book.description);
         }
 
 
@@ -103,17 +121,17 @@ function Bookshopping_details() {
             <section className='bookshopping_details_main_section'>
                 <div className='bookshopping_details_main_section_left'>
                     <div className='book_pic'>
-                        <img src={pics[Currbackdrop]} width={"100%"} height={"100%"} style={{ margin: '0px', borderRadius: "10px" }} alt='book_backdrop' />
+                        <img src={"http://localhost:5000/" + pics[Currbackdrop]} width={"100%"} height={"100%"} style={{ margin: '0px', borderRadius: "10px" }} alt='book_backdrop' />
                     </div>
                     <div className='bookshop_all_pics'>
 
                         {
-                            pics ? (
+                            pics.length > 1 ? (
                                 pics.map((item, index) => {
                                     return (
                                         <>
                                             <span className='bookshop_pic'  >
-                                                <img src={item} key={index} onClick={() => setCurr_backdrop(index)} width={"100%"} height={"100%"} style={{ margin: '0px', borderRadius: "10px", cursor: "pointer" }} alt='book_backdrop' />
+                                                <img src={"http://localhost:5000/"+item} key={index} onClick={() => setCurr_backdrop(index)} width={"100%"} height={"100%"} style={{ margin: '0px', borderRadius: "10px", cursor: "pointer" }} alt='book_backdrop' />
                                             </span>
                                         </>
                                     )
@@ -147,23 +165,23 @@ function Bookshopping_details() {
 
                 </div>
                 <div className='bookshopping_details_main_section_right'>
-                    <h1 className='book_title'>Psychology Money</h1>
+                    <h1 className='book_title'>{book.title}</h1>
                     <span className='book_author'>By Lalith kumar</span>
                     <div className='book_ratings'>
                         <span className='book_ratings_main_stars'>
-                            ⭐⭐⭐⭐⭐ (5) Reviews
+                            ⭐⭐⭐⭐⭐ {Array.isArray(book.reviews) && book.reviews.length} Reviews
                         </span>
 
                     </div>
                     <div className='book_price'>
                         <span className='actual_price'>
-                            $65.00
+                            ${book.book_actual_price}
                         </span>
                         <span className='discounted_price'>
-                            $50.00
+                            ${book.book_price}
                         </span>
                         <span className='no_of_stocks'>
-                            (70 in stack)
+                            ({book.In_stock} in stack)
                         </span>
                     </div>
                     <p className='about_book'>
@@ -238,7 +256,8 @@ function Bookshopping_details() {
                     <div className='book_tags'>
                         <span className='tags_title'>Tags:</span>
                         <p>
-                            web design,Ui design,Ux design,Graphic design
+                            {Array.isArray(book.tags) && book.tags.join(",")}
+                            {/* web design,Ui design,Ux design,Graphic design */}
                         </p>
                     </div>
                     {

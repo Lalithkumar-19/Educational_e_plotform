@@ -27,5 +27,10 @@ table,th,td{
 
 }
 tr{
-    height: 40px;
+    height: auto;
+}
+
+td{
+height: auto;
+width: 100px;
 }

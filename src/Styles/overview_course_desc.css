@@ -17,8 +17,9 @@
         flex-wrap: wrap;
         flex-direction: column;
         gap: 20px;
-        height: 260px;
+        height: auto;
         width: 100%;
+        columns: 2;
 
         @media(width<=600px) {
             display: flex;
@@ -51,7 +52,8 @@
     .requirements {
         display: flex;
         flex-direction: column;
-        .requirements_heading{
+
+        .requirements_heading {
             margin-left: 10px;
         }
 
@@ -69,4 +71,3 @@
 
 
 }
-

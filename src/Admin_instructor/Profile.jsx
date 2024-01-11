@@ -1,23 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./profile.css";
+import { Toaster, toast } from "react-hot-toast";
 
 
 const Profile = () => {
-    const params = useParams();
-    const [user, setUser] = useState({});
-    const [isEditing, setIsEditing] = useState(false);
-    const [skills, setSkills] = useState([{ name: "React js", value: 80 }, { name: "Node js", value: 80 }, { name: "Express js", value: 80 }]);
-    const [formData, setFormData] = useState({});
-    const [skill, setSkill] = useState(false);
-    const [add_newSkill, setNew_skill] = useState({ name: "", value: "" });
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [dp, setDp] = useState("");
+    const [formData, setFormData] = useState({
+        instructor_name: "",
+        instructor_pic:"",
+        about_instructor: "",
+        address: "",
+        email: "",
+        phonenumber: "",
+        profession: "",
+        website: "",
+        years_of_experience: "",
+        social_media: {
+            facebook: "",
+            twitter: "",
+            Linkedin: ""
+        },
+        skills: [],
+    });
+    const [add_newSkill, setNew_skill] = useState({ skillname: "", percent: "" });
+    const Add_skill = () => {
+        if (add_newSkill.skillname !== "" && add_newSkill.percent !== "") {
+            setFormData({ ...formData, skills: [...formData.skills, add_newSkill] });
+            setNew_skill({ skillname: "", percent: "" })
+        }
+        else {
+            toast.error("Fill the skill name and valid percentage");
+        }
+    }
 
     const fetchUserData = async () => {
         try {
-            const response = await axios.get(`/api/user/${params.id}`);
-            setUser(response.data);
+            const response = await axios.get("http://localhost:5000/fetch_instructor_profile?token=" + localStorage.getItem("instructor-token"));
             setFormData(response.data);
         } catch (error) {
             console.error("Error fetching user data", error);
@@ -26,17 +47,50 @@ const Profile = () => {
 
     useEffect(() => {
         fetchUserData();
-    }, [params.id]);
+    }, []);
+
+
 
     const handleUpdateUser = async () => {
         try {
-            const response = await axios.put(`/api/user/${params.id}`, formData);
-            setUser(response.data);
-            setIsEditing(false);
+            const response = await axios.put("http://localhost:5000/Update_instructor_profile?token=" + localStorage.getItem("instructor-token"), JSON.stringify(formData), {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            if (response.status === 200) {
+                toast.success("Updated successfully");
+                setIsEditing(false);
+                location.reload();
+            }
+            else {
+                toast.error("Updation failed ,try again later");
+                setIsEditing(false);
+            }
         } catch (error) {
             console.error("Error updating user data", error);
         }
     };
+
+
+    const handle_update_dp = async () => {
+        try {
+            const formdata = new FormData();
+            formdata.append("dp", dp);
+            const response = await axios.put("http://localhost:5000/Update_instructor_profile_pic?token=" + localStorage.getItem("instructor-token"), formdata);
+            if (response.status == 200) {
+                toast.success("Updated profile pic successfully ");
+                setDp("");
+                location.reload();
+            }
+            else {
+                toast.error("SOmething went wrong while updating profile pic")
+            }
+        } catch (error) {
+            console.log("error", error);
+            toast.error("SOmething went wrong while updating profile pic")
+        }
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -46,9 +100,17 @@ const Profile = () => {
     return (
         <div className="user_profile">
             <h2>User Profile</h2>
+            <Toaster position="bottom-right" />
             <div className="user_details">
-                <img className="user_dp" src="http://localhost:5173/src/assets/developerpic.jpg" alt="profile_pic" />
-
+                <img className="user_dp" src={"http://localhost:5000/"+formData.instructor_pic} alt="profile_pic" style={{background:"red"}}/>
+                {
+                    isEditing ? (
+                        <>
+                            <input type="file" accept="image/*" name="dp" style={{ marginBottom: "6px", background: " white", border: "none" }} onChange={(e) => { setDp(e.target.files[0]) }}
+                            />
+                        </>
+                    ) : ""
+                }
                 <div className="input_divs">
 
 
@@ -57,12 +119,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="text"
-                                name="address"
-                                value={formData.address}
+                                name="instructor_name"
+                                value={formData.instructor_name}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span className="field_values">Lalith kumar</span>
+                            <span className="field_values">{formData.instructor_name}</span>
                         )}
 
                     </div>
@@ -72,12 +134,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="text"
-                                name="address"
-                                value={formData.address}
+                                name="profession"
+                                value={formData.profession}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>Fullstack Developer</span>
+                            <span>{formData.profession}</span>
                         )}
 
                     </div>
@@ -87,12 +149,12 @@ const Profile = () => {
                         {isEditing ? (
                             <textarea
                                 type="text"
-                                name="address"
-                                value={formData.address}
+                                name="about_instructor"
+                                value={formData.about_instructor}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad perferendis distinctio dolores iste harum similique iusto esse. Veniam perferendis nemo porro quidem repellat placeat dignissimos, earum, quae omnis quo eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, nesciunt? Dicta ut cupiditate cumque quisquam pariatur quibusdam nostrum laboriosam rem earum, aspernatur deleniti asperiores. Ullam unde hic necessitatibus nisi dolorem et exercitationem qui adipisci, dolor repellat facilis facere fuga consectetur voluptas deleniti totam enim architecto magni asperiores! Ducimus, at unde?</span>
+                            <span>{formData.about_instructor}</span>
                         )}
 
                     </div>
@@ -107,7 +169,7 @@ const Profile = () => {
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span> Mr John Smith. 132, My Street, Bigtown BG23 4YZ</span>
+                            <span> {formData.address}</span>
                         )}
 
                     </div>
@@ -117,12 +179,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="email"
-                                name="address"
-                                value={formData.address}
+                                name="email"
+                                value={formData.email}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>lalithdev123@gmail.com</span>
+                            <span>{formData.email}</span>
                         )}
 
                     </div>
@@ -132,12 +194,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="number"
-                                name="phoneNumber"
-                                value={formData.address}
+                                name="phonenumber"
+                                value={formData.phonenumber}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>9573247732</span>
+                            <span>{formData.phonenumber}</span>
                         )}
 
                     </div>
@@ -148,12 +210,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="number"
-                                name="phoneNumber"
-                                value={formData.address}
+                                name="website"
+                                value={formData.website}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>www.lalithkumar.com</span>
+                            <span>{formData.website}</span>
                         )}
 
                     </div>
@@ -164,12 +226,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="number"
-                                name="experience"
-                                value={formData.address}
+                                name="years_of_experience"
+                                value={formData.years_of_experience}
                                 onChange={handleInputChange}
                             />
                         ) : (
-                            <span>12</span>
+                            <span>{formData.years_of_experience}</span>
                         )}
 
                     </div>
@@ -181,11 +243,11 @@ const Profile = () => {
                             <input
                                 type="text"
                                 name="linkedin"
-                                value={formData.address}
-                                onChange={handleInputChange}
+                                value={formData.social_media.Linkedin}
+                                onChange={(e) => { setFormData({ ...formData, social_media: { ...formData.social_media, Linkedin: e.target.value } }) }}
                             />
                         ) : (
-                            <span>www.linkedin/lalithkumar.com</span>
+                            <span>{formData.social_media.Linkedin}</span>
                         )}
 
                     </div>
@@ -195,11 +257,11 @@ const Profile = () => {
                             <input
                                 type="text"
                                 name="facebook"
-                                value={formData.address}
-                                onChange={handleInputChange}
+                                value={formData.social_media.facebook}
+                                onChange={(e) => { setFormData({ ...formData, social_media: { ...formData.social_media, facebook: e.target.value } }) }}
                             />
                         ) : (
-                            <span>www.fb.com/lalithkumar_005</span>
+                            <span>{formData.social_media.facebook}</span>
                         )}
 
                     </div>
@@ -209,12 +271,12 @@ const Profile = () => {
                         {isEditing ? (
                             <input
                                 type="text"
-                                name="phoneNumber"
-                                value={formData.address}
-                                onChange={handleInputChange}
+                                name="twitter"
+                                value={formData.social_media.twitter}
+                                onChange={(e) => { setFormData({ ...formData, social_media: { ...formData.social_media, twitter: e.target.value } }) }}
                             />
                         ) : (
-                            <span>www.twitter/lalithkumar</span>
+                            <span>{formData.social_media.twitter}</span>
                         )}
 
                     </div>
@@ -224,37 +286,37 @@ const Profile = () => {
                     <div className="input_item " id="skills_input">
                         <label> Skills you have</label>
                         {isEditing ? (
+
                             <>
-                                {skills ? (
+                                <div id="skills_showing" >
+                                    <div id="skill_shower_input">
+                                        <input type="text" name="new_skill" placeholder="skill name" value={add_newSkill.skillname} onChange={(e) => setNew_skill({ ...add_newSkill, skillname: e.target.value })} />
+                                        <input placeholder="percentage" type="number" min={30} max={100} value={add_newSkill.percent} onChange={(e) => { setNew_skill({ ...add_newSkill, percent: e.target.value }) }} /></div>
+                                    <button id="button" onClick={Add_skill}>Add New skill</button>
+                                </div>
+                                {formData.skills.length > 0 ? (
                                     <>
-                                        {skills.map((item, index) => {
-                                            return (<div id="skills_showing" >
-                                                <div id="skill_shower_input"><input type="text" name={item} placeholder="skill name" /> <input placeholder="percentage" type="number" min={30} max={100} /></div>
+                                        {formData.skills.map((item, index) => {
+                                            return (<div id="skills_showing" key={index} >
+                                                <div id="skill_shower_input">
+                                                    <input type="text" name={item.skillname} value={formData.skills[index].skillname} placeholder="skill name" disabled />
+                                                    <input placeholder="percentage" type="number" min={30} max={100} value={item.percent} disabled /></div>
                                             </div>
                                             )
                                         })}
-                                        {
-                                            skill ? (
-                                                <>
-                                                    <div id="skills_showing" >
-                                                        <div id="skill_shower_input"><input type="text" name="new_skill" placeholder="skill name" /> <input placeholder="percentage" type="number" min={30} max={100} /></div>
-                                                    </div>
-                                                </>
-                                            ) : ""
 
-                                        }
-                                        <button id="button" onClick={() => setSkill((prev) => !prev)} >{skill ? "Save" : "Add new skill"}</button>
+
 
                                     </>
                                 ) : ""}
                             </>
                         ) : (
                             <>
-                                {skills ? (
+                                {formData.skills.length > 0 ? (
                                     <>
-                                        {skills.map((item, index) => {
-                                            return (<div id="skills_showing" >
-                                                <span key={index}>{item.name} having know  {item.value}%</span>
+                                        {formData.skills.map((item, index) => {
+                                            return (<div id="skills_showing" key={index} >
+                                                <span key={index}>{item.skillname} having know  {item.percent}%</span>
                                             </div>
                                             )
                                         })}
@@ -266,7 +328,16 @@ const Profile = () => {
 
 
                     <button id="button"
-                        onClick={() => setIsEditing((prev)=>!prev)}
+                        onClick={() => {
+                            if (isEditing) {
+                                handleUpdateUser();
+                                if(dp!==""){
+                                    handle_update_dp();
+                                }
+                            }
+                            setIsEditing((prev) => !prev);
+
+                        }}
                     >
                         {isEditing ? "Save" : "Edit"}
                     </button>

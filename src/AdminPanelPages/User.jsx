@@ -1,14 +1,100 @@
 import {
-  CalendarToday,
   LocationSearching,
   MailOutline,
-  PermIdentity,
-  PhoneAndroid,
   Publish,
 } from "@mui/icons-material";
 import "./user.css";
+import { useEffect, useRef } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
-export default function User({ view }) {
+export default function User({ view, id, rows, setrows }) {
+  const user_dp = useRef(null);
+  const [data, setData] = useState({});
+  const [dp, setDp] = useState("");
+  console.log(data);
+
+  useEffect(() => {
+    async function Fetch_User() {
+      try {
+        const res = await axios.get("http://localhost:5000/get_single_user?id=" + id);
+        if (res.status === 200) {
+          setData({ ...res.data });
+        } else {
+          toast.error("internal server error occured");
+        }
+      } catch (error) {
+        toast.error("Connecting to server is failed");
+      }
+    }
+    Fetch_User();
+  }, []);
+  console.log(data);
+
+
+  const handle_update_dp = async () => {
+    try {
+        const formdata = new FormData();
+        formdata.append("dp",dp);
+        const response = await axios.put("http://localhost:5000/update_single_user_dp?token=" + localStorage.getItem("token")+"&id="+id, formdata);
+        if (response.status == 200) {
+            toast.success("Updated profile pic successfully ");
+            setUser(response.data);
+            localStorage.setItem("userdata", response.data.name);
+            setDp("");
+        }
+        else {
+            toast.error("SOmething went wrong while updating profile pic")
+        }
+    } catch (error) {
+        console.log("error", error);
+        toast.error("SOmething went wrong while updating profile pic")
+    }
+}
+
+  const update_user = async () => {
+    try {
+      if (data.name !== "" && data.Addresses !== "" && data.email !== "" && data.profession !== "") {
+        if(dp!==""){
+          handle_update_dp();
+        }
+        const res = await axios.put("http://localhost:5000/update_single_user?id=" + id, data);
+        if (res.status === 200) {
+          toast.success("updated successfully");
+          let updated_data = Array.isArray(rows) && rows.map((item, i) => {
+            if (item._id === id) {
+              return { ...data, id: i };
+            }
+            return item;
+          });
+          setrows(updated_data);
+
+        }
+        else {
+          toast.error("internal server error occured");
+        }
+      }
+      else {
+        toast.error("fill all fileds")
+      }
+    } catch (error) {
+      toast.error("unable to connect with our servers");
+    }
+
+  }
+
+
+  function check() {
+    if (data.name !== "" && data.email !== "" && data.profession !== "") {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   return (
     <div className="user">
       <div className="userTitleContainer">
@@ -16,43 +102,35 @@ export default function User({ view }) {
           {view ? "" : "Edit User"}</h1>
       </div>
       <div className="userContainer">
+        {/* {check() && (
+          <> */}
         <div className="userShow">
           <div className="userShowTop">
             <img
-              src="https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-              alt=""
+              src={dp ?URL.createObjectURL(dp): "http://localhost:5000/"+data.dp}
+              alt="pic"
               className="userShowImg"
             />
             <div className="userShowTopTitle">
-              <span className="userShowUsername">Anna Becker</span>
-              <span className="userShowUserTitle">Software Engineer</span>
+              <span className="userShowUsername">{data.name}</span>
+              <span className="userShowUserTitle">{data.profession}</span>
             </div>
           </div>
           <div className="userShowBottom">
-            <span className="userShowTitle">Account Details</span>
-            <div className="userShowInfo">
-              <PermIdentity className="userShowIcon" />
-              <span className="userShowInfoTitle">annabeck99</span>
-            </div>
-            <div className="userShowInfo">
-              <CalendarToday className="userShowIcon" />
-              <span className="userShowInfoTitle">10.12.1999</span>
-            </div>
             <span className="userShowTitle">Contact Details</span>
-            <div className="userShowInfo">
-              <PhoneAndroid className="userShowIcon" />
-              <span className="userShowInfoTitle">+1 123 456 67</span>
-            </div>
+
             <div className="userShowInfo">
               <MailOutline className="userShowIcon" />
-              <span className="userShowInfoTitle">annabeck99@gmail.com</span>
+              <span className="userShowInfoTitle">{data.email ? data.email : "no email provided"}</span>
             </div>
             <div className="userShowInfo">
               <LocationSearching className="userShowIcon" />
-              <span className="userShowInfoTitle">New York | USA</span>
+              <span className="userShowInfoTitle">{data.Addresses ? data.Addresses : "no address provided"}</span>
             </div>
           </div>
         </div>
+
+
         <div className="userUpdate">
           <span className="userUpdateTitle">User</span>
           <form className="userUpdateForm">
@@ -62,44 +140,34 @@ export default function User({ view }) {
                 <input
                   type="text"
                   placeholder="annabeck99"
+                  value={data.name}
+                  onChange={(e) => setData({ ...data, name: e.target.value })}
                   className="userUpdateInput"
                   disabled={view ? true : false}
 
                 />
               </div>
-              <div className="userUpdateItem">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  placeholder="Anna Becker"
-                  className="userUpdateInput"
-                  disabled={view ? true : false}
-                />
-              </div>
+
               <div className="userUpdateItem">
                 <label>Email</label>
                 <input
                   type="text"
                   placeholder="annabeck99@gmail.com"
                   className="userUpdateInput"
+                  value={data.email}
+                  onChange={(e) => setData({ ...data, email: e.target.value })}
                   disabled={view ? true : false}
                 />
               </div>
-              <div className="userUpdateItem">
-                <label>Phone</label>
-                <input
-                  type="text"
-                  placeholder="+1 123 456 67"
-                  className="userUpdateInput"
-                  disabled={view ? true : false}
-                />
-              </div>
+
               <div className="userUpdateItem">
                 <label>Address</label>
                 <input
                   type="text"
                   placeholder="New York | USA"
                   className="userUpdateInput"
+                  onChange={(e) => setData({ ...data, Addresses: e.target.value })}
+                  value={data.Addresses}
                   disabled={view ? true : false}
 
                 />
@@ -108,9 +176,10 @@ export default function User({ view }) {
             <div className="userUpdateRight">
               <div className="userUpdateUpload">
                 <img
+                  ref={user_dp}
                   className="userUpdateImg"
-                  src="https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-                  alt=""
+                  src={dp ?URL.createObjectURL(dp): "http://localhost:5000/"+data.dp}
+                  alt="user _dp"
                 />
                 {
                   view ? "" : (
@@ -118,19 +187,27 @@ export default function User({ view }) {
                       <label htmlFor="file">
                         <Publish className="userUpdateIcon" />
                       </label>
-                      <input type="file" id="file" style={{ display: "none" }} />
+                      <input type="file" id="file" style={{ display: "none" }} name="dp" onChange={(e)=>setDp(e.target.files[0])} />
                     </>
                   )
                 }
               </div>
               {view ? "" : (
                 <>
-                  <button className="userUpdateButton">Update</button>
+                  <button type="button" onClick={update_user} className="userUpdateButton">Update</button>
                 </>
               )}
             </div>
           </form>
         </div>
+        {/* </>)} */}
+        {/* {
+          !check()&& (
+            <>
+              <CircularProgress content="loading" color="secondary" />
+            </>
+          )
+        } */}
       </div>
     </div>
   );

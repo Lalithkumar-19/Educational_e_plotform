@@ -6,6 +6,7 @@ import {
   AttachMoney,
   WorkOutline,
   Approval,
+  LocalMall,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -49,18 +50,19 @@ export default function Sidebar({ selectedpage }) {
               <Storefront className="sidebarIcon" />
               Products
             </li>
-            <li className={`sidebarListItem ${selected === 5 && "active"}`} onClick={() => setSelected(5)}>
-              <Storefront className="sidebarIcon" />
-              New Product
-            </li>
+    
 
-            <li className={`sidebarListItem ${selected === 6 && "active"}`} onClick={() => setSelected(6)}>
+            <li className={`sidebarListItem ${selected === 5&& "active"}`} onClick={() => setSelected(5)}>
               <AttachMoney className="sidebarIcon" />
               Transactions
             </li>
-            <li className={`sidebarListItem ${selected === 7 && "active"}`} onClick={() => setSelected(7)}>
+            <li className={`sidebarListItem ${selected === 6 && "active"}`} onClick={() => setSelected(6)}>
               <AttachMoney className="sidebarIcon" />
               Courses
+            </li>
+            <li className={`sidebarListItem ${selected === 10 && "active"}`} onClick={() => setSelected(10)}>
+              <LocalMall className="sidebarIcon" />
+              Orders
             </li>
 
 

@@ -1,7 +1,17 @@
 import React from 'react'
 import GradeIcon from '@mui/icons-material/Grade';
 import "../Styles/bannercomponent.css";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 function Banner_component() {
+   const [searchText, setSearch_text] = useState("");
+   const navigate = useNavigate();
+   const handleSearch = () => {
+      navigate(`/course_list/${searchText}`);
+   }
+
+
    return (
       <div className='banner_div'>
          <div className='first_box_header_lines'>
@@ -11,13 +21,13 @@ function Banner_component() {
             Finding the right courses and mocktests in youtube is very tough.But we are Providing the Best for Best content and mock tests.
          </div>
          <div className='banner_search_input'>
-            <input type='text' placeholder='Search on EduDev website for courses....' />
-            <button type='button'>SEARCH</button>
+            <input type='text' value={searchText} onChange={(e) => setSearch_text(e.target.value)} style={{textIndent:"6px"}} placeholder='Search on EduDev website for courses....' />
+            <button type='button' onClick={handleSearch} >SEARCH</button>
          </div>
 
          <div className='banner_bottom'>
             <span className='rating' style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>4.5/5 rating for all courses
-               <span style={{ textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", margin: "5px",color:"black" }}><GradeIcon fontSize='10px' /></span>
+               <span style={{ textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", margin: "5px", color: "black" }}><GradeIcon fontSize='10px' /></span>
             </span>
          </div>
       </div>

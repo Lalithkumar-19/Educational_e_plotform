@@ -3,42 +3,72 @@ import { DataGrid } from "@mui/x-data-grid";
 import { DeleteOutline } from "@mui/icons-material";
 import { userRows } from "./data";
 // import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserEdit_Modal from "../Modals/UserEdit_Modal";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
-export default function UserList({setselected}) {
-  const [data, setData] = useState(userRows);
+export default function UserList({ setselected }) {
+  const [data, setData] = useState([]);
 
-  const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
-  };
-  
+  const Fetch_All_Users = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/get_all_users?token=" + localStorage.getItem("instructor-token"));
+      if (res.status === 200) {
+        const row_data = res.data.map((item, index) => ({
+          ...item,
+          id: index + 1, // Assuming your IDs should start from 1
+        }));
+        setData(row_data);
+      }
+      else {
+        toast.error("internal server error occured");
+      }
+
+    } catch (error) {
+      toast.error("we are unable to connect to our servers");
+      console.log(error);
+    }
+  }
+  useEffect(() => {
+    Fetch_All_Users();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      let res = await axios.put("http://localhost:5000/delete_single_user?id=" + id);
+      if (res.status === 200) {
+        toast.success("deleted successfully");
+        setData(data.filter((item) => item._id !== id));
+      }
+      else {
+        toast.error("internal error occured");
+      }
+    } catch (error) {
+      toast.error("connection to server failed");
+    }
+  }
+
+
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "_id", headerName: "ID", width: 90 },
     {
       field: "user",
-      headerName: "User",
+      headerName: "UserName",
       width: 200,
       renderCell: (params) => {
         return (
           <div className="userListUser">
-            <img className="userListImg" src={params.row.avatar} alt="" />
-            {params.row.username}
+            <img className="userListImg" src={"http://localhost:5000/"+params.row.dp} alt="" />
+            {params.row.name}
           </div>
         );
       },
     },
     { field: "email", headerName: "Email", width: 200 },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 120,
-    },
-    {
-      field: "transaction",
-      headerName: "Transaction Volume",
-      width: 160,
-    },
+    { field: "profession", headerName: "Profession", width: 200 },
+
     {
       field: "action",
       headerName: "Action",
@@ -46,11 +76,11 @@ export default function UserList({setselected}) {
       renderCell: (params) => {
         return (
           <>
-              <UserEdit_Modal User_id={1234} key={params.Id}/>
-        
+            <UserEdit_Modal data={data} setdata={setData} User_id={params.row._id} key={params._id} />
+
             <DeleteOutline
               className="userListDelete"
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleDelete(params.row._id)}
             />
           </>
         );
@@ -60,14 +90,18 @@ export default function UserList({setselected}) {
 
   return (
     <div className="userList">
-      {/* <button className="create_new_user" style={{background:"coral",color:"white",border:"none",height:"40px",marginLeft:"5px",borderRadius:"10px",marginBottom:"20px",marginTop:"12px",cursor:"pointer"}} onClick={()=>setselected(3)} >Create New User</button> */}
-      <DataGrid
-        rows={data}
-        disableSelectionOnClick
-        columns={columns}
-        pageSize={8}
-        checkboxSelection
-      />
+      <Toaster gutter={3} />
+
+      {
+        data.length > 0 ? (<>
+          <DataGrid
+            rows={data}
+            disableSelectionOnClick
+            columns={columns}
+            pageSize={8}
+          />
+        </>) : (<div style={{ textAlign: "center" }}><CircularProgress color="primary" content="Fetching data" /></div>)
+      }
     </div>
   );
 }

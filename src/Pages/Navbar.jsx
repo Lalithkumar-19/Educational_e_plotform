@@ -7,6 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useSelector } from 'react-redux';
 import Dropdown from '../Modals/Dropdown';
 
+
 function Navbar() {
   const cartitems = useSelector(state => state.cart);
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ function Navbar() {
       backgroundColor: "coral"
     },
   }));
+
   return (
     <div className='navbar'>
       <h2 style={{ cursor: "pointer" }} onClick={() => { navigate("/"); location.reload(); }}>EduDev</h2>
@@ -32,17 +34,22 @@ function Navbar() {
 
       </ul>
       <div className='Activity_buttons'>
-      <div className='my_self' id='my_self'>
-        <Dropdown />
-        
-      </div>
+        <div className='my_self' id='my_self'>
+          {localStorage.getItem("token") && localStorage.getItem("userdata") && <Dropdown />}
+
+        </div>
         <span className='bucket_icon'> <Link to="/yourcart">
           <StyledBadge badgeContent={cartitems.length} color="primary">
             <ShoppingCartIcon />
           </StyledBadge>
         </Link>
         </span>
-        <button className='login_button' onClick={() => navigate("/login")}>Log In</button>
+        {localStorage.getItem("userdata")? (
+          <>
+            <h3 style={{ marginLeft: "5px", marginRight: "2px", color: "blue" }}> Welcome {localStorage.getItem("userdata")}</h3>
+          </>
+        ) : <button type='button' id='button' onClick={()=>navigate("/login")}>Login</button>
+        }
       </div>
     </div>
   )

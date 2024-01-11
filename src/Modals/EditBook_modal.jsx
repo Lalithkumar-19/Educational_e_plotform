@@ -3,24 +3,23 @@ import Modal from '@mui/material/Modal';
 import "./Modal.css";
 import { useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { Button, TextField } from '@mui/material';
+import { Toaster, toast } from 'react-hot-toast';
+import { DeleteOutline } from "@mui/icons-material";
 
 
-export default function EditBook_modal() {
-    const params = useParams();
-    const [open, setOpen] = React.useState(true);
+export default function EditBook_modal({ id, }) {
+    const [open, setOpen] = React.useState(false);
     const handleClose = () => setOpen(false);
     const [updatedBookData, setBookData] = useState({
-        BookName: '',
-        BookDesc: '',
-        BookAdditional_info: '',
-        actual_price: '',
-        final_price: '',
-        stock: '',
-        tags: [],
-        images: [],
+        title: '',
+        Author: "",
+        description: '',
+        Additional_info: '',
+        book_price: '',
+        book_actual_price: '',
+        In_stock: '',
     });
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,21 +28,59 @@ export default function EditBook_modal() {
             [name]: value,
         });
     };
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
+        if (!updatedBookData.title || !updatedBookData.Author || !updatedBookData.description || !updatedBookData.book_actual_price || !updatedBookData.book_price || !updatedBookData.In_stock) {
+            toast.error("Please fill all fields");
+        }
+        else {
+
+            try {
+                const res = await axios.post("http://localhost:5000/update_book?token=" + localStorage.getItem("instructor-token") + "&id=" + id, updatedBookData);
+                if (res.status === 200) {
+                    toast.success("Updated successfully");
+                    setOpen(false);
+                    window.location.reload();
+                }
+
+            } catch (error) {
+                toast.error("Error while updating");
+            }
+
+
+        }
+
 
     }
-    console.log(updatedBookData);
-    useEffect(async () => {
-        await axios.get(`url_endpoint/${params.id?.id}`, { withCredentials: true }).then((info) => {
-            setInformation(info);
-            console.log("application details are fetched");
-        }).catch(err => console.log("error occured while fetching"))
+    useEffect(() => {
+        async function Get_book_details() {
+            const res = await axios.get("http://localhost:5000/Get_single_book?id=" + id);
+            if (res.status === 200) {
+                setBookData({ ...res.data });
+            }
+        }
+        Get_book_details();
     }, [])
+
+
+    const handle_Delete_book=async ()=>{
+        try {
+            const res=await axios.put("http://localhost:5000/delete_book?id="+id);
+            if(res.status===200){
+                toast.success("deleted successfully");
+                window.location.reload();
+            }
+            else{
+                toast.error("internal server error occured")
+            }
+        } catch (error) {
+            toast.error("check internet connection")
+        }
+    }
+
 
     return (
         <div className='modal'>
-            <div id='button' style={{ width: "100%", height: "10px", background: "transparent" }} onClick={() => setOpen(true)}> Edit Book</div>
-
+            <button id='button' style={{ width: "100%" }} onClick={() => setOpen(true)}> Edit Book</button>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -55,44 +92,53 @@ export default function EditBook_modal() {
                     <h2>Update Book Data</h2>
                     <div id="modal-modal-description" sx={{ mt: 2 }}>
                         <TextField
-                            name="BookName"
+                            name="title"
                             label="Book Name"
-                            value={updatedBookData.BookName}
+                            value={updatedBookData.title}
                             onChange={handleChange}
                         />
                         <TextField
-                            name="BookDesc"
+                            name="Author"
+                            label="Book Author"
+                            value={updatedBookData.Author}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            name="description"
                             label="Book Description"
-                            value={updatedBookData.BookDesc}
+                            value={updatedBookData.description}
                             onChange={handleChange}
                         />
                         <TextField
-                            name="BookAdditional_info"
+                            name="Additional_info"
                             label="Additional Information"
-                            value={updatedBookData.BookAdditional_info}
+                            value={updatedBookData.Additional_info}
                             onChange={handleChange}
                         />
                         <TextField
-                            name="actual_price"
+                            name="book_price"
                             label="Actual Price"
-                            value={updatedBookData.actual_price}
+                            value={updatedBookData.book_price}
                             onChange={handleChange}
                         />
                         <TextField
-                            name="final_price"
+                            name="book_actual_price"
                             label="Final Price"
-                            value={updatedBookData.final_price}
+                            value={updatedBookData.book_actual_price}
                             onChange={handleChange}
                         />
                         <TextField
-                            name="stock"
+                            name="In_stock"
                             label="Number of Items in Stock"
-                            value={updatedBookData.stock}
+                            value={updatedBookData.In_stock}
                             onChange={handleChange}
                         />
                         {/* Add fields for tags and images as needed */}
                         <Button onClick={handleUpdate} variant="contained" color="primary" sx={{ marginBottom: "20px" }}>
                             Update
+                        </Button>
+                        <Button onClick={handle_Delete_book} variant="contained" color="primary" sx={{ marginBottom: "20px" }}>
+                            Delete
                         </Button>
                     </div>
                 </div>

@@ -2,15 +2,55 @@ import React, { useState } from 'react'
 import "../Multiuse_Pages/Reviewpage.css";
 import { TrendingUp } from '@mui/icons-material';
 import Rating from '@mui/material/Rating';
-function Reviewpage() {
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+function Reviewpage({ id, reviews }) {
 
 
-    const [RatingValue, setRating] = useState(0);
-    console.log(RatingValue);
+
+    const [data, setData] = useState({
+        rating: "",
+        review_content: ""
+    })
+
+    console.log(data);
+
+    const handle_Add_Review = async () => {
+
+        if (data.rating !== "" && data.review_content !== "") {
+            try {
+                await axios.post("http://localhost:5000/add_course_review?id=" + id, data, {
+                    withCredentials: true,
+                }).then((res) => {
+                    if (res.status === 200) {
+                        toast.success("Successfully Review Added");
+                        setData({
+                            rating: "",
+                            review_content: ""
+                        })
+                    }
+                    else {
+                        toast.error("There is something wrong..try later");
+                    }
+                }).catch(err => {
+                    toast.error("Internal server error occured ");
+                    console.log("error is ", err);
+
+                })
+
+            } catch (error) {
+                console.log("There is a error occured", error)
+            }
+        }
+        else {
+            toast.error("PLease fill all fields");
+        }
+    }
+
 
     return (
         <div className='review_page'>
-            <h1  className='review_page_title'style={{ marginLeft: "0px" }}>Reviews</h1>
+            <h1 className='review_page_title' style={{ marginLeft: "0px" }}>Reviews</h1>
             <div className='ratings'>
                 <section className='overall_rating'>
                     <span style={{ fontSize: "30px", textAlign: "center" }} className='rating_number'>4.7</span>
@@ -72,7 +112,26 @@ function Reviewpage() {
                         </div>
                     </div>
 
+                    {
+                        reviews && Array.isArray(reviews) && reviews.map((item, i) => {
+                            return (
+                                <div className='student_reviews_left_box' key={i}>
+                                    <p>{item.review_content}</p>
+                                    <div className='student_details'>
+                                        <img src={item.reviwer_details.dp} alt="student" />
 
+                                        <span className='about_student'>
+                                            <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>{item.reviwer_details.name}
+                                                <p style={{ margin: "1px", textAlign: "start", width: "auto" }}>{item.reviwer_details.profession}</p>
+                                            </span>
+
+                                            <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>{item.rating}⭐</p>
+                                        </span>
+                                    </div>
+                                </div>
+                            )
+                        })
+                    }
                     {/* secondone */}
                     <div className='student_reviews_left_box'>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur eum quis minus expedita, et, excepturi doloribus quibusdam unde, praesentium quaerat commodi sint delectus. Saepe beatae repellendus voluptatum a temporibus reiciendis.</p>
@@ -119,18 +178,24 @@ function Reviewpage() {
 
                     <Rating
                         name="simple-controlled"
-                        value={RatingValue}
+                        value={data.rating}
                         onChange={(event, newValue) => {
+                            setData({ ...data, rating: newValue });
                             setRating(newValue);
                         }}
                     />
 
-                    <form className='review_taken_form'>
-                        <input className='review_title' placeholder='Review Title' type='text'name='review_title' />
-                        <input className='reviewer_name' placeholder='Reviewer Name' name='reviewer_name' type='text' />
-                        <input className='reviewer_email' placeholder='Email' name='reviewer_email' type='email' />
-                        <input className='reviewer_website' placeholder='Website' name='reviewer_website' type='text'/>
-                        <button type='submit' id='button' className='submit_button' >
+                    <form className='review_taken_form' style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
+                        <textarea className='review_title'
+                            placeholder='Review Description'
+                            type='text' name='review_title'
+                            value={data.review_content}
+                            onChange={(e) => setData({ ...data, review_content: e.target.value })}
+                            required style={{ resize: "none", height: "50px", width: "400px", textIndent: "5px" }} />
+                        {/* <input className='reviewer_name' placeholder='Reviewer Name' name='reviewer_name' type='text' />
+                        <input className='reviewer_email' placeh    older='Email' name='reviewer_email' type='email' />
+                        <input className='reviewer_website' placeholder='Website' name='reviewer_website' type='text' /> */}
+                        <button type='button' id='button' onClick={handle_Add_Review} className='submit_button' >
                             Submit Review
                         </button>
 
