@@ -35,6 +35,14 @@
                 align-items: center;
                 padding: 12px 1px;
                 margin: 10px 0px;
+                .blog_heading{
+                    width: 66%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2; 
+                }
 
                 .blog_posting_details {
                     display: flex;
@@ -142,6 +150,7 @@
                     .post {
                         display: flex;
                         flex-direction: row;
+                        cursor: pointer;
                         gap: 10px;
                         align-items: start;
                         justify-content: center;
@@ -171,6 +180,12 @@
                                 opacity: .9;
                                 margin: 2px 0px;
                                 margin-bottom: 18px;
+                                display: -webkit-box;
+                                -webkit-box-orient: vertical;
+                                -webkit-line-clamp: 2;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+
 
                             }
                         }
@@ -241,14 +256,7 @@
     }
 }
 
-/* p{
-    text-align: justify;
-    padding: 5px;
-    opacity: 0.8;
-}
-button{
-    border-radius: 6px;
-} */
+
 .blogviewer_left_end_options {
     display: flex;
     flex-direction: row;
@@ -270,6 +278,32 @@ button{
         padding: 12px;
         flex-wrap: wrap;
     }
+}
+
+.Add_comment_box {
+    width: 90%;
+    margin-top: 5px;
+
+    .comment_input {
+        width: 70%;
+        height: 30px;
+        outline: none;
+        border: none;
+        margin-right: 4px;
+        text-indent: 4px;
+    }
+
+    .comment_submit_button {
+        width: 100px;
+        padding: 9px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        color: white;
+        background-color: coral;
+        cursor: pointer;
+    }
+
 }
 
 li {

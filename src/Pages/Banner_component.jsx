@@ -8,7 +8,9 @@ function Banner_component() {
    const [searchText, setSearch_text] = useState("");
    const navigate = useNavigate();
    const handleSearch = () => {
-      navigate(`/course_list/${searchText}`);
+      if (searchText !== "") {
+         navigate(`/course_list/${searchText}`);
+      }
    }
 
 
@@ -21,7 +23,7 @@ function Banner_component() {
             Finding the right courses and mocktests in youtube is very tough.But we are Providing the Best for Best content and mock tests.
          </div>
          <div className='banner_search_input'>
-            <input type='text' value={searchText} onChange={(e) => setSearch_text(e.target.value)} style={{textIndent:"6px"}} placeholder='Search on EduDev website for courses....' />
+            <input type='text' value={searchText} onChange={(e) => setSearch_text(e.target.value)} style={{ textIndent: "6px" }} placeholder='Search on EduDev website for courses....' />
             <button type='button' onClick={handleSearch} >SEARCH</button>
          </div>
 

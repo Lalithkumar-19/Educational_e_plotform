@@ -1,59 +1,108 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 // import "./OrdersShowing_page.css";
 import "../UsersPFPages/orderspage.css"
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 function OrdersShowing_page() {
-    const orders = [
-        { id: 1, product: 'Robust Python', total: 50, status: 'Processing', payment: "Cod", phone: 973456765678, address: "Gurukula kandriga ,chithoor -517643Gurukula kandriga ,chithoor -517643Gurukula kandriga ,chithoor -517643Gurukula kandriga ,chithoor -517643  " },
-        { id: 2, product: 'Cpp dsa', total: 75, status: 'Shipped', payment: "Upi", phone: 973456765678, address: "Gurukula kandriga ,chithoor -517643" },
-        { id: 3, product: 'core java', total: 30, status: 'Delivered', payment: "cod", phone: 973456765678, address: "Gurukula kandriga ,chithoor -517643" },
-    ];
+    const [Orders, setOrders] = useState([]);
+    const Change_delivery_status = async (id, status) => {
+        try {
+            const res = await axios.put("http://localhost:5000/Change_order_status?token="+localStorage.getItem("admin_token"), { id: id, delivery_status: status });
+            if (res.status === 200) {
+                Fetch_all_orders();
+                toast.success("Delivery status changed successfully");
+            }
+            else {
+                toast.error("Error occured while changing delivery status")
+                console.log("not fetched data");
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const Fetch_all_orders = async () => {
+        try {
+            const res = await axios.get("http://localhost:5000/Get_all_orders_Admin?token="+localStorage.getItem("admin_token"));
+            if (res.status === 200) {
+                setOrders(res.data);
+                console.log("admin", res.data);
+            }
+            else {
+                console.log("not fetched data");
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        Fetch_all_orders();
+    }, []);
+    const status_options = ["pending", "confirmed", "Near to you", "Delivered"];
+
 
     return (
         <div className='orders_container'>
+            <Toaster />
             <header className="orders_header">
                 <h2 className='header_top'>Orders <span style={{ color: "coral" }}>Page</span></h2>
-            </header>
-            <div className='all_orders'>
+            </header>{
+                Orders.length !== 0 &&
 
-                <table style={{ overflow: "scroll" }} >
-                    <tr>
-                        <th>Product</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Payment</th>
-                        <th>Address</th>
-                        <th>Delivered?</th>
-                        <th>Phone Number</th>
+                <div className='all_orders'>
 
-                    </tr>
-                    {
-                        orders && orders.map((item, index) => {
-                            return (
-                                <>
-                                    <tr key={index}>
-                                        <td>{item.product}</td>
-                                        <td>{item.total}</td>
-                                        <td style={{ color: "red", fontSize: "18px" }}>{item.status} </td>
-                                        <td>{item.payment}</td>
-                                        <td>{item.address}</td>
-                                        <td><select>
-                                            <option>Processing</option>
-                                            <option>confirmed</option>
-                                            <option>Near to you</option>
-                                            <option>Delivered</option>
-                                        </select>
-                                        </td>
-                                        <td>{item.phone}</td>
+                    <table style={{ overflow: "scroll" }} >
+                        <tr>
+                            <th>Product</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Address</th>
+                            <th>Delivered?</th>
+                            <th>Phone Number</th>
+
+                        </tr>
+                        {
+                            Orders && Orders.map((item) => {
+                                return (
+                                    <>
+                                        <tr key={item._id}>
+                                            <td>{Array.isArray(item.products) && item.products.map((it) => {
+                                                return it.name + " ,";
+                                            })}</td>
+                                            <td>{item.subtotal}</td>
+                                            <td style={{ color: "red", fontSize: "18px" }}>{item.delivery_status} </td>
+                                            <td>{item.payment_status}</td>
+                                            <td>{item.shipping.address.city},{item.shipping.address.line1}</td>
+                                            <td><select onChange={(ev) => {
+                                                Change_delivery_status(item._id, ev.target.value);
+                                            }}>
+                                                <option value={item.delivery_status}>{item.delivery_status}</option>
+                                                {status_options.map((val, i) => {
+                                                    if (val !== item.delivery_status) {
+                                                        return <option key={i} value={val}>{val}</option>
+                                                    }
+                                                })}
+
+                                            </select>
+                                            </td>
+                                            <td>{item.shipping.phone}</td>
 
 
-                                    </tr>
-                                </>
-                            )
-                        })
-                    }
-                </table>
-            </div>
-
+                                        </tr>
+                                    </>
+                                )
+                            })
+                        }
+                    </table>
+                </div>
+            }
+            {Orders.length === 0 && (
+                <>
+                    <h1>No orders there</h1>
+                </>
+            )}
 
 
         </div>

@@ -19,7 +19,7 @@ export default function NewUser() {
   const handle_Create_User = async () => {
     try {
       if (data.Addresses !== "" && data.email !== "" && data.name !== "" && data.password !== "" && data.profession !== "") {
-        const response = await axios.post("http://localhost:5000/create_new_user",data);
+        const response = await axios.post("http://localhost:5000/create_new_user?token="+localStorage.getItem("admin_token"),data);
         if (response.status == 201) {
           toast.success("created a user");
           setData({

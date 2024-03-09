@@ -19,7 +19,7 @@ export default function User({ view, id, rows, setrows }) {
   useEffect(() => {
     async function Fetch_User() {
       try {
-        const res = await axios.get("http://localhost:5000/get_single_user?id=" + id);
+        const res = await axios.get("http://localhost:5000/get_single_user?id=" + id+"&token="+localStorage.getItem("admin_token"));
         if (res.status === 200) {
           setData({ ...res.data });
         } else {
@@ -60,7 +60,7 @@ export default function User({ view, id, rows, setrows }) {
         if(dp!==""){
           handle_update_dp();
         }
-        const res = await axios.put("http://localhost:5000/update_single_user?id=" + id, data);
+        const res = await axios.put("http://localhost:5000/update_single_user?id=" + id+"&token="+localStorage.getItem("admin_token"), data);
         if (res.status === 200) {
           toast.success("updated successfully");
           let updated_data = Array.isArray(rows) && rows.map((item, i) => {

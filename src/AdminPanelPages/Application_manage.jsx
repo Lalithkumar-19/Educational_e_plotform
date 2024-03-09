@@ -23,7 +23,7 @@ export default function Application_manage() {
     const [data, setData] = useState([]);
 
     const handleDelete = async (id) => {
-        await fetch(`http://localhost:5000/delete_single_instructor_application?id=${id}`).then(res => {
+        await fetch(`http://localhost:5000/delete_single_instructor_application?id=${id}&?token=${localStorage.getItem("admin_token")}`).then(res => {
             if (res.status === 200) {
                 toast.success("Succesfuuly denied Application");
                 rows.forEach(item=>{
@@ -41,7 +41,7 @@ export default function Application_manage() {
 
     }
     const handleGranted = async (id) => {
-        await fetch(`http://localhost:5000/grant_single_instructor_application?id=${id}`).then(res => {
+        await fetch(`http://localhost:5000/grant_single_instructor_application?id=${id}&token=${localStorage.getItem("admin_token")}`).then(res => {
             if (res.status === 200) {
                 toast.success("Succesfuuly Granted Application");
             }

@@ -7,10 +7,8 @@ import AdminHome from '../AdminPanelPages/AdminHome';
 import ProductList from '../AdminPanelPages/ProductList';
 import NewUser from '../AdminPanelPages/NewUser';
 import UserList from '../AdminPanelPages/UserList';
-import NewProduct from '../AdminPanelPages/NewProduct';
 import { useEffect } from 'react';
 import WidgetLg from '../AdminpanelComponents/WidgetLg';
-import Courses from "../Pages/Feautured_courses"
 import Instructors_manage from '../AdminPanelPages/Instructors_manage';
 import Application_manage from '../AdminPanelPages/Application_manage';
 import OrdersShowing_page from '../AdminPanelPages/OrdersShowing_page';

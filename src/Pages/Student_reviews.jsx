@@ -1,6 +1,5 @@
 import React from 'react'
 import "../Styles/Student_review.css";
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 function Student_reviews() {
     return (
@@ -24,11 +23,11 @@ function Student_reviews() {
                             <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="student" />
 
                             <span className='about_student'>
-                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Harshith.india
+                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Rani
                                     <p style={{ margin: "1px", textAlign: "center", width: "15px" }}>Student</p>
                                 </span>
 
-                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4.5⭐</p>
+                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4⭐</p>
                             </span>
                         </div>
                     </div>
@@ -40,21 +39,16 @@ function Student_reviews() {
                     <div className='student_reviews_left_box'>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur eum quis minus expedita, et, excepturi doloribus quibusdam unde, praesentium quaerat commodi sint delectus. Saepe beatae repellendus voluptatum a temporibus reiciendis.</p>
                         <div className='student_details'>
-                            <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="student" />
+                            <img src="https://watermark.lovepik.com/photo/50169/0876_lovepik-female-college-students-review-carefully-in-the-photo-image_wh1200.jpg" alt="student" />
 
                             <span className='about_student'>
                                 <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Harshu Reddy
                                     <p style={{ margin: "1px", textAlign: "center", width: "15px" }}>Student</p>
                                 </span>
 
-                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4.5⭐</p>
+                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4⭐</p>
                             </span>
                         </div>
-                    </div>
-                    <div className='all_Reviews'>
-                        <div className='click_button'>
-                            <span className='click_button_text'>See All Reviews </span><span ><TrendingUpIcon /></span></div>
-
                     </div>
 
                 </div>

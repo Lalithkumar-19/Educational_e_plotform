@@ -1,15 +1,28 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import "../Styles/blogs_showing.css";
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { CircularProgress } from '@mui/material';
+import { format } from 'date-fns';
 
 function Blogsshowingpage({ headingshow }) {
     useEffect(() => {
         Aos.init();
     }, [])
     const navigate = useNavigate();
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        async function Fetch_posts() {
+            await axios.get("http://localhost:5000/blogs?limit=6").then((result) => {
+                setPosts(result.data);
+            }).catch(err => console.log(err));
+        };
+        Fetch_posts();
+    }, []);
 
 
     return (
@@ -26,8 +39,48 @@ function Blogsshowingpage({ headingshow }) {
 
             {/* mainpagecode */}
 
-            <div className='blogs_showing_section' data-aos="fade-right" onClick={() => navigate("/selectedblog")} >
-                
+            <div className='blogs_showing_section' data-aos="fade-right"  >
+
+
+                {
+                    posts.length > 0 && posts.map((item, index) => {
+                        return (
+                            <div className='blog_banner_div' key={index}>
+                                <div className='backdrop_div'>
+                                    <span className='uploaded_date'>
+                                        {format(new Date(item.posted_Date), "dd eeee yyyy")}
+                                    </span>
+                                    <img className="backdrop_pic" src={"http://localhost:5000/" + item.backdrop} alt="blogs_banner" />
+                                </div>
+                                <div className='About_blog'>
+                                    <p className='About_blog_heading'>{item.name}</p>
+                                    <p className='About_blog_text' >
+                                        <div className='About_blog_text' style={{ textAlign: "justify" }} dangerouslySetInnerHTML={{ __html: item.content }} />
+                                    </p>
+                                    <div className='read_full_post'>
+                                        <div className='click_button'>
+                                            <span className='click_button_text' onClick={() => navigate("/selectedblog/"+item._id)} style={{ textAlign: "center" }}>Read Post </span><span ><TrendingUpIcon /></span></div>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
+                        )
+
+
+                    })
+
+                }
+                {
+                    posts.length === 0 ? <CircularProgress /> : ""
+                }
+
+
+
+                {/* secondone
                 <div className='blog_banner_div'>
                     <div className='backdrop_div'>
                         <span className='uploaded_date'>
@@ -48,37 +101,13 @@ function Blogsshowingpage({ headingshow }) {
 
                     </div>
                 </div>
+ */}
 
 
 
-                {/* secondone */}
-                <div className='blog_banner_div'>
-                    <div className='backdrop_div'>
-                        <span className='uploaded_date'>
-                            25 February 2022
-                        </span>
-                        <img className="backdrop_pic" src="https://images.unsplash.com/photo-1570215171424-f74325192b55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFuJTIwYW5kJTIwY29tcHV0ZXJ8ZW58MHx8MHx8fDA%3D&w=1000&q=80" alt="blogs_banner" />
-                    </div>
-                    <div className='About_blog'>
-                        <p className='About_blog_heading'>Ui and ux presentation updates</p>
-                        <p className='About_blog_text'>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rem recusandae similique voluptas ipsa labore nam necessitatibus velit, tempore molestias distinctio in, temporibus numquam dolore totam magni? Quas, beatae est!</p>
-                        <div className='read_full_post'>
-                            <div className='click_button'>
-                                <span className='click_button_text' style={{ textAlign: "center" }}>Read Post </span><span ><TrendingUpIcon /></span></div>
-
-                        </div>
-
-
-                    </div>
-                </div>
-
-
-
-               
 
                 {/* thirdone */}
-                <div className='blog_banner_div'>
+                {/* <div className='blog_banner_div'>
                     <div className='backdrop_div'>
                         <span className='uploaded_date'>
                             25 February 2022
@@ -97,7 +126,7 @@ function Blogsshowingpage({ headingshow }) {
 
 
                     </div>
-                </div>
+                </div> */}
 
 
 
@@ -105,7 +134,7 @@ function Blogsshowingpage({ headingshow }) {
 
 
                 {/* fourth one */}
-                <div className='blog_banner_div'>
+                {/* <div className='blog_banner_div'>
                     <div className='backdrop_div'>
                         <span className='uploaded_date'>
                             25 February 2022
@@ -124,12 +153,12 @@ function Blogsshowingpage({ headingshow }) {
 
 
                     </div>
-                </div>
+                </div> */}
 
 
 
                 {/* fifthone */}
-                <div className='blog_banner_div'>
+                {/* <div className='blog_banner_div'>
                     <div className='backdrop_div'>
                         <span className='uploaded_date'>
                             25 February 2022
@@ -148,14 +177,14 @@ function Blogsshowingpage({ headingshow }) {
 
 
                     </div>
-                </div>
+                </div> */}
 
 
 
 
 
                 {/* sixthone */}
-                <div className='blog_banner_div'>
+                {/* <div className='blog_banner_div'>
                     <div className='backdrop_div'>
                         <span className='uploaded_date'>
                             25 February 2022
@@ -176,7 +205,7 @@ function Blogsshowingpage({ headingshow }) {
                     </div>
                 </div>
 
-
+ */}
 
 
             </div>

@@ -8,60 +8,74 @@ import { Toaster, toast } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
+ 
 
 function Loginpage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [instructor_login, setInstructor_login] = useState(false);
+    const [admin_login, setadmin_login] = useState(false);
     const [signUp, setSignup] = useState(true);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [LoggedIn, setLoggedIn] = useState(false);
-    const [errors, setErrors] = useState({
-        name: false,
-        email: false,
-        password: false,
-    })
-    console.log(instructor_login, "rkfgkj");
-
-    console.log({ name, email, password });
+   
 
     const handleLogin = async () => {
-        const login_user_url = `http://localhost:5000/${signUp ? "signup" : "login"}`;
-        const instructor_login_url = 'http://localhost:5000/login-instructor';
-        await axios.post(instructor_login ? instructor_login_url : login_user_url, { name, email, password }).then((res) => {
-            if (res.status === 200) {
-                setLoggedIn(true);
-                if (signUp) {
-                    toast.success("Signed Up successfully");
-                    setSignup(false);
+        if (admin_login === false) {
+            const login_user_url = `http://localhost:5000/${signUp ? "signup" : "login"}`;
+            const instructor_login_url = 'http://localhost:5000/login-instructor';
+            await axios.post(instructor_login ? instructor_login_url : login_user_url, { name, email, password }).then((res) => {
+                if (res.status === 200 || res.status === 201) {
+                    setLoggedIn(true);
+                    if (signUp) {
+                        toast.success("Signed Up successfully");
+                        setSignup(false);
+                    }
+
+                    if (instructor_login) {
+                        localStorage.setItem("instructor-token", res.data);
+                        navigate("/instructor_panel");
+                    } else {
+                        localStorage.setItem("userdata", res.data.data);
+                        localStorage.setItem("token", res.data.token);
+                        localStorage.setItem("id", res.data.id);
+                        toast.success("Congrats Logged in successfully ");
+                        navigate("/");
+                    }
+                    dispatch({ type: "Userpresence", payload: 1 });
+                    setName("");
+                    setEmail("");
+                    setPassword("");
+                    setInstructor_login(false);
+                }
+                else {
+                    setLoggedIn(false);
+                    toast.error("Try Again to Login or check your credentials ")
                 }
 
-                if (instructor_login) {
-                    localStorage.setItem("instructor-token", res.data);
-                    navigate("/instructor_panel");
+            }).catch((err) => {
+                toast.error("Logged  failed");
+                console.log(err.message);
+            });
+        } else {
+            try {
+                const res = await axios.post("http://localhost:5000/admin_login", { email: email, password: password });
+                if (res.status === 200) {
+                    setadmin_login(false);
+                    localStorage.setItem("admin_token", res.data.token);
+                    localStorage.setItem("admin_logged", true);
+                    toast.success("Loggined successfully");
+                    navigate("/admin");
                 } else {
-                    localStorage.setItem("userdata", res.data.data);
-                    localStorage.setItem("token", res.data.token);
-                    toast.success("Congrats Logged in successfully ");
-                    navigate("/");
+                    toast.error("Admin loggin failed");
                 }
-                dispatch({ type: "Userpresence", payload: 1 });
-                setName("");
-                setEmail("");
-                setPassword("");
-                setInstructor_login(false);
-            }
-            else {
-                setLoggedIn(false);
-                toast.error("Try Again to Login or check your credentials ")
-            }
+            } catch (error) {
+                toast.error("Admin loggin failed &check your connection");
 
-        }).catch((err) => {
-            toast.error("Logged  failed");
-            console.log(err.message);
-        });
+            }
+        }
 
     }
 
@@ -95,49 +109,27 @@ function Loginpage() {
                             signUp ? (<>
                                 <label className='login_label'>Name</label>
                                 <input type='text' className='login_inputs' placeholder=' ✉ Name' value={name} autoComplete='Off' onChange={(e) => setName(e.target.value)} />
-                                {errors.name && (
-                                    <>
-                                        <span style={{ color: "red", marginBottom: "2px" }}>Name is required !</span>
 
-                                    </>
-                                )}
                             </>) : ""
                         }
                         <label className='login_label'>Email</label>
                         <input type='text' className='login_inputs' placeholder='  ✉ Example@gmail.com' autoComplete='off' value={email} onChange={(e) => setEmail(e.target.value)} />
-                        {errors.email && (
-                            <>
-                                <span style={{ color: "red", marginBottom: "2px" }}>Email is required !</span>
 
-                            </>
-                        )}
                         <label className='login_label'>Password</label>
                         <input type='password' placeholder=' 🔐 Example@12345' autoComplete='off' className='login_inputs login_password_input' value={password} onChange={(e) => setPassword(e.target.value)} />
 
                         {!signUp ? (<div style={{ display: "flex", flexDirection: "row", gap: "4px", alignItems: "center", justifyContent: "start" }}>
                             <input type='checkbox' checked={instructor_login} onChange={(e) => setInstructor_login(e.target.checked)} />
                             <span className='instructor_login' style={{ color: "coral" }} >Instructor?</span>
+                            <input type='checkbox' checked={admin_login} onChange={(e) => setadmin_login(e.target.checked)} />
+                            <span className='instructor_login' style={{ color: "coral" }} >Admin?</span>
                         </div>) : ""}
-
-                        {errors.password && (
-                            <>
-                                <span style={{ color: "red", marginBottom: "2px" }}>Password is required !</span>
-
-                            </>
-                        )}
                         {
                             !signUp ? (<span className='forgot_password' >Forgot Password?</span>) : ""
 
                         }
                         <span className='Login_button' id='button' onClick={(ev) => handleLogin(ev)} >{signUp ? ("Sign Up") : "Login"}</span>
 
-                        <div className='other_sign_up_options'>
-                            <span className='Login_with_google'>Or,Sign up with Google</span>
-                            <div className='sing_up_buttons'>
-                                <button className='google_login' id='button' type='button'>Google</button>
-                            </div>
-
-                        </div>
 
                     </form>
                     <div className='new_account'>

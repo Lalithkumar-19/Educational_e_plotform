@@ -27,68 +27,45 @@ import Dynamic_application_shower from "./Modals/Dynamic_application_shower"
 import Instructor_panel from "./AdminPanels/Instructor_panel"
 import Profilepage from "./UsersPFPages/ProfilePage"
 import Profile from "./Admin_instructor/Profile"
+import BlogEditor from "./Pages/BlogWriting_page"
+import { useEffect } from "react"
+import { GetUser_details } from "./Redux/Freq_funcs"
+import WishlistPage from "./UsersPFPages/WIshlistPage"
+import MyLearningsPage from "./UsersPFPages/My_learnings"
+import Notfoundpage from "./Pages/Notfoundpage"
+
 
 function App() {
+
+  useEffect(() => {
+    GetUser_details();
+  }, [])
 
   return (
     <>
       <BrowserRouter future={{ v7_startTransition: true }}>
         <Routes>
+          //general routes for all to access
           <Route Component={Homepage} path="/" />
-          <Route Component={Profilepage} path="/profile"/>
-          {/* responsive done */}
-          {/* courses routes */}
           <Route Component={Online_Course_overview} path="/courses/overview/:id" />
-          {/* responsive done */}
-          <Route Component={Courseplayer} path="/courseplayer" />
-          {/* responsive done */}
-
-
-          {/* Blogs routes */}
-          <Route Component={Blogviewer} path="/selectedblog" />
-          {/* responsive done */}
-
-
-          {/* instructor routes */}
-          {/* responsive done */}
+          <Route Component={Courseplayer} path="/courseplayer/:id" />
+          <Route Component={Blogviewer} path="/selectedblog/:id" />
           <Route Component={All_Instructors} path="/instructors" />
-          <Route Component={About_instructor} path="/instructors/about_instructor" />
           <Route Component={About_instructor} path="/instructors/about_instructor/:id" />
-
-          {/* responsive done */}
-
-          {/* <Route Component={Customer_review} path="/customerreview" /> */}
-
-          {/* Books routes */}  
-          {/* responsive done */}
           <Route Component={Bookshopping} path="/bookshopping" />
           <Route Component={Bookshopping_details} path="/bookshopping/selected_book/:id" />
-
-          {/* cartpages routes */}
-          {/* responsive done */}
-          <Route Component={Cartpage} path="/yourcart" />
-          <Route Component={Checkoutpage} path="/yourcart/checkout" />
-          {/* payment page */}
-          {/* responsive done */}
           <Route Component={Payment_Success} path="/yourcart/checkout/success" />
-
-          {/* faqpage routes */}
-          {/* reponsive done */}
           <Route Component={Faqpage} path="/faqpage" />
-
-
-          {/* loginpage */}
-          {/* responsive done */}
           <Route Component={Loginpage} path="/login" />
-
-
-          {/* <Route path="/course_list" Component={Course_list} /> */}
           <Route path="/course_list/:search_word" Component={Course_list} />
           <Route path="/course_list" Component={Course_list} />
+          <Route path="/contactUs" Component={Contact_page} />
+          <Route path="/apply_instructor" element={<Instructor_apply header_footer={true} />} />
+          <Route path="/blogwrite" Component={BlogEditor} />
+          <Route Component={Cartpage} path="/yourcart" />
+          <Route path="*" Component={Notfoundpage} />
 
-
-          {/* element routes */}
-          {/* responsive done */}
+//routes with elements
           <Route element={
             <>
               <Navbar />
@@ -102,9 +79,6 @@ function App() {
             </>
           } path="/courses" />
 
-
-
-          {/* responsive done */}
           <Route element={
             <>
               <Navbar />
@@ -116,32 +90,32 @@ function App() {
             </>
           } path="/blogs" />
 
-          {/* contact_page */}
-          {/* responsive done */}
-          <Route path="/contactUs" Component={Contact_page} />
-          {/* responsvedone */}
-          <Route path="/apply_instructor" element={<Instructor_apply header_footer={true} />} />
 
+//restricted routes for certain people
 
-          <Route path="/admin" Component={Admin} />
-          <Route path="admin/application_see/:id" Component={Dynamic_application_shower} />
-
-
-          <Route path="/myorders" Component={OrdersPage} />
-
+          {localStorage.getItem("admin_token") &&
+            <>
+              <Route path="/admin" Component={Admin} />
+              <Route path="admin/application_see/:id" Component={Dynamic_application_shower} />
+            </>
+          }
+//for instructor
           {
             localStorage.getItem("instructor_access") ? <Route path="/instructor_panel" Component={Instructor_panel} /> : ""
 
           }
 
+//for logged in people
+          {localStorage.getItem("token") &&
+            <>  <Route path="/myorders" Component={OrdersPage} />
+              <Route path="/profile" Component={Profile} />
+              <Route path="/yourWishlist" Component={WishlistPage} />
+              <Route path="/MyLearnings" Component={MyLearningsPage} />
+              <Route Component={Profilepage} path="/profile" />
+              <Route Component={Checkoutpage} path="/yourcart/checkout" />
 
-
-          <Route path="/profile" Component={Profile} />
-
+            </>}
         </Routes>
-
-        {/* course_content */}
-
 
       </BrowserRouter>
     </>

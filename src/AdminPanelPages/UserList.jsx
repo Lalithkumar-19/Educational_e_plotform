@@ -1,7 +1,6 @@
 import "./userList.css";
 import { DataGrid } from "@mui/x-data-grid";
 import { DeleteOutline } from "@mui/icons-material";
-import { userRows } from "./data";
 // import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import UserEdit_Modal from "../Modals/UserEdit_Modal";
@@ -14,7 +13,7 @@ export default function UserList({ setselected }) {
 
   const Fetch_All_Users = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/get_all_users?token=" + localStorage.getItem("instructor-token"));
+      const res = await axios.get("http://localhost:5000/get_all_users?token=" + localStorage.getItem("admin_token"));
       if (res.status === 200) {
         const row_data = res.data.map((item, index) => ({
           ...item,
@@ -37,7 +36,7 @@ export default function UserList({ setselected }) {
 
   const handleDelete = async (id) => {
     try {
-      let res = await axios.put("http://localhost:5000/delete_single_user?id=" + id);
+      let res = await axios.put("http://localhost:5000/delete_single_user?id=" + id+"&token="+localStorage.getItem("admin_token"));
       if (res.status === 200) {
         toast.success("deleted successfully");
         setData(data.filter((item) => item._id !== id));

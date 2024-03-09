@@ -1,3 +1,7 @@
+input[text] {
+    text-indent: 5px;
+}
+
 .courses_route {
 
     display: flex;
@@ -18,7 +22,7 @@
         }
     }
 
-  
+
 
 }
 
@@ -47,6 +51,6 @@
 
 
 
-input{
+input {
     text-align: 5px;
 }

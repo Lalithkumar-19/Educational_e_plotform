@@ -23,14 +23,13 @@ function Navbar() {
     <div className='navbar'>
       <h2 style={{ cursor: "pointer" }} onClick={() => { navigate("/"); location.reload(); }}>EduDev</h2>
       <ul className='navbar_menu'>
-        <li className='main'><Link to='/products' >Products</Link></li>
         <li className='main'><Link to={"/courses"}>Courses</Link> </li>
         <li className='main'><Link to={"/blogs"}>Blogs</Link> </li>
         <li className='main'><Link to={"/instructors"}>Instructors</Link></li>
         <li className='main'><Link to={"/bookshopping"}>Books</Link></li>
         <li className='main'><Link to={"/faqpage"}>FAQ</Link></li>
+        <li className='main'><Link to={"/blogwrite"}>Write Blog</Link></li>
 
-        {/* <li> <a href="#Contact_page" style={{ scrollBehavior: "smooth" }}>Contact</a> </li> */}
 
       </ul>
       <div className='Activity_buttons'>
@@ -39,14 +38,14 @@ function Navbar() {
 
         </div>
         <span className='bucket_icon'> <Link to="/yourcart">
-          <StyledBadge badgeContent={cartitems.length} color="primary">
+          <StyledBadge badgeContent={cartitems&&cartitems.length} color="primary">
             <ShoppingCartIcon />
           </StyledBadge>
         </Link>
         </span>
         {localStorage.getItem("userdata")? (
           <>
-            <h3 style={{ marginLeft: "5px", marginRight: "2px", color: "blue" }}> Welcome {localStorage.getItem("userdata")}</h3>
+            <h3 style={{ marginLeft: "5px", marginRight: "2px", color: "blue",fontSize:"14px" }}> Welcome {localStorage.getItem("userdata")}</h3>
           </>
         ) : <button type='button' id='button' onClick={()=>navigate("/login")}>Login</button>
         }

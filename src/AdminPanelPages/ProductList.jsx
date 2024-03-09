@@ -1,5 +1,4 @@
 import "./productList.css";
-import { productRows } from "./data";
 import { useEffect, useState } from "react";
 import Product_EditModal from "../Modals/Product_EditModal";
 import axios from "axios";

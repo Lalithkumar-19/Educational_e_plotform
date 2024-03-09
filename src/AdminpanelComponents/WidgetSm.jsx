@@ -10,7 +10,7 @@ export default function WidgetSm() {
   const [data, setData] = useState([]);
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http:///localhost:5000/get_all_new_joined_users");
+      const res = await axios.get("http:///localhost:5000/get_all_new_joined_users?token="+localStorage.getItem("admin_token"));
       if (res.status === 200) {
         setData([...res.data]);
       }
@@ -37,7 +37,7 @@ export default function WidgetSm() {
               {
                 data.map((item, i) => {
                   return (
-                    <li className="widgetSmListItem">
+                    <li className="widgetSmListItem" key={i}>
                       <img
                         src={"http://localhost:5000/" + item.dp}
                         alt="dp"

@@ -8,7 +8,6 @@ import ListIcon from '@mui/icons-material/List';
 import Coursecard from '../Pages/Coursecard';
 import Course_card_line_align from '../Course_line_align/Course_card_line_align';
 import Slider from '@mui/material/Slider';
-import PaginationMui from '../PaginationMui/PaginationMui';
 import axios from 'axios';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { useParams } from 'react-router-dom';
@@ -18,20 +17,30 @@ import { CircularProgress } from '@mui/material';
 
 
 function Course_list() {
-    const { search_word } = useParams();
-
+    //for filtering 
     const [filtering_for_sm, Set_filtering_for_sm] = useState(false);
     const [alignline, SetAlignline] = useState(false);
+
     const [search, setSearch] = useState("");
     const [priceRange, setPricerange] = useState(12);
-    const [top_categories, setTop_categories] = useState([]);
-    const [top_instructors, setTop_instructors] = useState([]);
     const [rating, setRating] = useState(5);
-    const [Data, setdata] = useState([]);
- 
-    // setSearch(search_word);
 
+    const [Data, setdata] = useState([]);
+    const [zero_res, SetZeroResult] = useState(false);
+    // setSearch(search_word);
     const [Screen_small, setScreen_small] = useState(false);
+    //for storing real values fetched from server;
+    const [categories_Data, setCategories_data] = useState([]);
+    const [Instructors_data, setInstructorsData] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedInstructor, setSelectedInstructor] = useState("");
+    const [showing_courses_no, setShowing_courses_no] = useState(0);
+    const [total_courses_no, setTotal_courses_no] = useState(0);
+    // Function to handle checkbox change
+    const handleCheckboxChange = (categoryName) => {
+        setSelectedCategory(categoryName);
+    };
+
 
     useEffect(() => {
         if (window.innerWidth <= 600) {
@@ -42,10 +51,8 @@ function Course_list() {
         }
 
     }, [])
+    console.log("data is", Data);
 
-    useEffect(() => {
-        setSearch(search_word);
-    }, [search_word]);
 
     useEffect(() => {
         if (document.readyState === "complete") {
@@ -55,7 +62,6 @@ function Course_list() {
                     filters.style.display = "flex";
                     document.body.style.overflowY = "hidden";
                     document.body.style.opacity = 1.1;
-
                 }
                 else {
                     filters.style.display = "none";
@@ -69,14 +75,29 @@ function Course_list() {
     }, [filtering_for_sm, Screen_small]);
 
 
-console.log("price",priceRange)
+
+    const getrangeValue = (value) => {
+        setPricerange(value);
+    };
+
+
     async function getfilteredResult() {
         try {
-            const url = `http://localhost:5000/api/course_list?search=${search}&categories=${top_categories.length>0?top_categories.join(","):"  "}&instructors=${top_instructors.length>0?top_instructors.join(","):" "}&rating=${rating}&price=${priceRange}`;
+            const url = `http://localhost:5000/api/course_list?search=${search}&category=${selectedCategory}&instructor=${selectedInstructor}&price=${priceRange}`
+            // &categories=${top_categories.length > 0 ? top_categories.join(",") : ""}&instructors=${top_instructors.length > 0 ? top_instructors.join(",") : " "}&rating=${rating}&price=${priceRange}`;
             const { data } = await axios.get(url);
-            if (data) {
-                setdata(data);
-                console.log(data, "data");
+            const { leng, total } = data;
+            setShowing_courses_no(leng);
+            setTotal_courses_no(total);
+
+            if (Array.isArray(data.data) && data.data.length === 0) {
+                SetZeroResult(true);
+            } else {
+                SetZeroResult(false);
+            }
+            if (data.data) {
+                setdata(data.data);
+                setSearch("");
             }
             if (Screen_small) {
                 Set_filtering_for_sm(false);
@@ -86,32 +107,29 @@ console.log("price",priceRange)
         }
     }
 
-    const getrangeValue = (value) => {
-        setPricerange(value);
-    };
 
     useEffect(() => {
         getfilteredResult();
-    }, [top_categories, top_instructors, rating]);
+        setSearch("");
+    }, [selectedCategory, selectedInstructor, priceRange]);
 
-
-    const Add_check_filters = (e) => {
-        if (e.target.checked) {
-            setTop_categories([...top_categories, e.target.value]);
-        } else {
-            let index = top_categories.indexOf(e.target.value);
-            setTop_categories(top_categories.filter((val) => index !== val));
+    async function Fetch_categories() {
+        const res = await axios.get("http://localhost:5000/Get_all_categories");
+        if (res.status === 200) {
+            setCategories_data(res.data);
         }
     }
 
-    const Add_instructors_filters = (e) => {
-        if (e.target.checked) {
-            setTop_instructors([...top_instructors, e.target.value]);
-        } else {
-            let index = top_instructors.indexOf(e.target.value);
-            setTop_instructors(top_instructors.filter((val) => index !== val));
+    async function Fetch_Instructors() {
+        const res = await axios.get("http://localhost:5000/Get_all_top_instructor");
+        if (res.status === 200) {
+            setInstructorsData(res.data);
         }
     }
+    useEffect(() => {
+        Fetch_categories();
+        Fetch_Instructors();
+    }, [])
 
 
 
@@ -153,86 +171,71 @@ console.log("price",priceRange)
 
                             <div className='top_categories_filter'>
                                 <h1 className='top_categories_title'>Top Categories </h1>
-                                <div className='categoty_filter_item'>
+                                {categories_Data.length > 0 ? Array.isArray(categories_Data) && categories_Data.map((item, i) => {
+                                    return (
+                                        <div className='categoty_filter_item' key={i}>
+                                            <input
+                                                className='checkbox'
+                                                name='category'
+                                                type='checkbox'
+                                                id={`checkboxes-${i}`}
+                                                style={{ backgroundColor: "coral", color: "coral", cursor: "pointer" }}
+                                                value={item.name}
+                                                checked={selectedCategory === item.name}
+                                                onChange={() => {
+                                                    if (selectedCategory !== item.name) {
+                                                        handleCheckboxChange(item.name);
+                                                    } else {
+                                                        setSelectedCategory("")
+                                                    }
+                                                }}
+                                            />
+                                            {item.name}
+                                        </div>
 
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"web design"} onChange={Add_check_filters} />
-                                    Web Design 
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"ux design"} onChange={Add_check_filters} />
-                                    Ux Design 
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"chatgpt"} onChange={Add_check_filters} />
-                                    chat Gpt & ai tools
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"react js"} onChange={Add_check_filters} />
-                                    react js
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"javascript"} onChange={Add_check_filters}  />
-                                    javascript
-                                </div>
+                                    )
+                                })
+                                    : <CircularProgress />}
 
                             </div>
 
                             {/* 2nd item */}
                             <div className='top_instructors_filter'>
                                 <h1 className='top_instructos_title'>Top Instructors</h1>
-                                <div className='categoty_filter_item' id='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }}  value={"Lalith kumar"} onClick={Add_instructors_filters}/>
-                                    Lalith kumar
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"Amarnadh"} onClick={Add_instructors_filters} />
-                                    Amarnadh
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"Ganesh"} onClick={Add_instructors_filters}/>
-                                   Ganesh
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"Ashok kumar"} onClick={Add_instructors_filters}/>
-                                   Ashok kumar
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} value={"praneel"} onClick={Add_instructors_filters}/>
-                                 Praneel (.)
-                                </div>
-
+                                {
+                                    Instructors_data.length > 0 && Array.isArray(Instructors_data) && Instructors_data.map((item, i) => {
+                                        return (
+                                            <div className='categoty_filter_item' key={i}>
+                                                <input
+                                                    className='checkbox'
+                                                    name='category'
+                                                    type='checkbox'
+                                                    id={`checkboxes-${i}`}
+                                                    style={{ backgroundColor: "coral", color: "coral", cursor: "pointer" }}
+                                                    value={item.name}
+                                                    checked={selectedInstructor === item.name} // Set checked based on selectedCategory state
+                                                    onChange={() => {
+                                                        if (selectedInstructor !== item.name) {
+                                                            setSelectedInstructor(item.name);
+                                                        } else {
+                                                            setSelectedInstructor("")
+                                                        }
+                                                    }}
+                                                />
+                                                {item.name}
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
-
-                            {/* 3rd item */}
-                            {/* <div className='license_filter'>
-                                <h1 className='license_filter_title'>Licenses</h1>
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} />
-                                    Free
-                                </div>
-
-                                <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} />
-                                    Premium
-                                </div>
-                            </div> */}
 
 
                             {/* 4th item price filter */}
                             <div className='price_filter'>
                                 <h1 className='price_filter_title'>Price Filter</h1>
-                                {/* <input className='price_filter_input' type='range' max={100} min={20} /> */}
                                 <Slider
                                     aria-label="Price"
-                                    defaultValue={30}
+                                    defaultValue={180}
                                     getAriaValueText={getrangeValue}
                                     valueLabelDisplay="auto"
                                     step={10}
@@ -242,7 +245,7 @@ console.log("price",priceRange)
                                     color={"primary"}
 
                                 />
-                                <p style={{ fontSize: "19px" }}>Price: ${priceRange}</p>
+                                <p style={{ fontSize: "19px" }}>Price: Rs.{priceRange}</p>
 
                             </div>
 
@@ -251,28 +254,28 @@ console.log("price",priceRange)
                             <div className='rating_filter'>
                                 <h1 className='rating_filter_title'>Ratings</h1>
                                 <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={5} checked={rating==5?true:false} onChange={(e)=>setRating(e.target.value)} />
+                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={5} checked={rating == 5 ? true : false} onChange={(e) => setRating(e.target.value)} />
                                     🌟🌟🌟🌟🌟
                                 </div>
 
                                 <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={4} checked={rating==4} onChange={(e)=>setRating(e.target.value)}/>
+                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={4} checked={rating == 4} onChange={(e) => setRating(e.target.value)} />
                                     🌟🌟🌟🌟 ✰
                                 </div>
 
                                 <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={3} checked={rating==3} onChange={(e)=>setRating(e.target.value)}/>
+                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={3} checked={rating == 3} onChange={(e) => setRating(e.target.value)} />
                                     🌟🌟🌟 ✰ ✰
                                 </div>
 
                                 <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={2}  checked={rating==2} onChange={(e)=>setRating(e.target.value)} />
+                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={2} checked={rating == 2} onChange={(e) => setRating(e.target.value)} />
                                     🌟🌟 ✰ ✰ ✰
                                 </div>
 
 
                                 <div className='categoty_filter_item'>
-                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={1} checked={rating==1} onChange={(e)=>setRating(e.target.value)}/>
+                                    <input className='checkbox' type='checkbox' id='checkboxes' style={{ backgroundColor: "coral", color: "coral" }} name='rating' value={1} checked={rating == 1} onChange={(e) => setRating(e.target.value)} />
                                     🌟 ✰ ✰  ✰  ✰
                                 </div>
                             </div>
@@ -287,7 +290,7 @@ console.log("price",priceRange)
                 {/* right section */}
                 <section className='course_list_main_right'>
                     <div className='course_list_main_right_top'>
-                        <span className='course_list_main_right_top_filtered_results'>Showing 15 Courses of 55</span>
+                        <span className='course_list_main_right_top_filtered_results'>Showing {showing_courses_no} Courses of {total_courses_no}</span>
                         <div className='right_top_filters'>
                             <div className='sort_by' id='sort_by'>
                                 <span className='sort_title'>Sort by:</span>
@@ -325,28 +328,32 @@ console.log("price",priceRange)
                             !alignline ? (
                                 <>
 
-                                 {Data.length>0?(
-                                    <>
-                                    {
-                                        Data.map((item,i)=>{
-                                            return <Coursecard w={true}b={true} admin={false} id={item._id} course_duration={item.course_duration} course_name={item.course_name} course_lectures={item.course_lectures}course_thumnail={item.course_thumbnail} skill_level={item.skill_level} course_price={item.course_price} key={i} />
-                                        })
-                                    }
-                                    </>
-                                 ):<CircularProgress/>}
+                                    {Data.length > 0 ? (
+                                        <>
+                                            {
+                                                Data.map((item, i) => {
+                                                    return <Coursecard w={true} b={true} admin={false} id={item._id} course_duration={item.course_duration} course_name={item.course_name} course_lectures={item.course_lectures} course_thumnail={item.course_thumbnail} skill_level={item.skill_level} course_price={item.course_price} key={i} />
+                                                })
+                                            }
+                                        </>
+                                    ) : !zero_res ? <CircularProgress /> : <h1>No courses found</h1>}
 
                                 </>
                             ) : (
                                 <>
-                                    <Course_card_line_align />
-                                    <Course_card_line_align />
-                                    <Course_card_line_align />
-                                    <Course_card_line_align />
-
+                                    {Data.length > 0 ? (
+                                        <>
+                                            {
+                                                Data.map((item, i) => {
+                                                    return <Course_card_line_align item={item} key={i} />
+                                                })
+                                            }
+                                        </>
+                                    ) : !zero_res ? <CircularProgress /> : <h1>No courses found</h1>}
                                 </>
                             )}
                     </div>
-                   
+
                 </section>
 
             </section>

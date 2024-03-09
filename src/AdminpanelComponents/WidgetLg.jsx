@@ -1,6 +1,29 @@
+import { useEffect, useState } from "react";
 import "./widgetLg.css";
+import axios from "axios";
+import { format } from "date-fns";
 
 export default function WidgetLg() {
+  const [Orders, setOrders] = useState([]);
+  const Fetch_all_orders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/Get_all_orders_Admin?token="+localStorage.getItem("admin_token"));
+      if (res.status === 200) {
+        setOrders(res.data);
+        console.log("admin", res.data);
+      }
+      else {
+        console.log("not fetched data");
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(() => {
+    Fetch_all_orders();
+  }, []);
+
   const Button = ({ type }) => {
     return <button className={"widgetLgButton " + type}>{type}</button>;
   };
@@ -14,66 +37,26 @@ export default function WidgetLg() {
           <th className="widgetLgTh">Amount</th>
           <th className="widgetLgTh">Status</th>
         </tr>
-        <tr className="widgetLgTr">
-          <td className="widgetLgUser">
-            <img
-              src="https://images.pexels.com/photos/4172933/pexels-photo-4172933.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              alt=""
-              className="widgetLgImg"
-            />
-            <span className="widgetLgName">Susan Carol</span>
-          </td>
-          <td className="widgetLgDate">2 Jun 2021</td>
-          <td className="widgetLgAmount">$122.00</td>
-          <td className="widgetLgStatus">
-            <Button type="Approved" />
-          </td>
-        </tr>
-        <tr className="widgetLgTr">
-          <td className="widgetLgUser">
-            <img
-              src="https://images.pexels.com/photos/4172933/pexels-photo-4172933.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              alt=""
-              className="widgetLgImg"
-            />
-            <span className="widgetLgName">Susan Carol</span>
-          </td>
-          <td className="widgetLgDate">2 Jun 2021</td>
-          <td className="widgetLgAmount">$122.00</td>
-          <td className="widgetLgStatus">
-            <Button type="Declined" />
-          </td>
-        </tr>
-        <tr className="widgetLgTr">
-          <td className="widgetLgUser">
-            <img
-              src="https://images.pexels.com/photos/4172933/pexels-photo-4172933.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              alt=""
-              className="widgetLgImg"
-            />
-            <span className="widgetLgName">Susan Carol</span>
-          </td>
-          <td className="widgetLgDate">2 Jun 2021</td>
-          <td className="widgetLgAmount">$122.00</td>
-          <td className="widgetLgStatus">
-            <Button type="Pending" />
-          </td>
-        </tr>
-        <tr className="widgetLgTr">
-          <td className="widgetLgUser">
-            <img
-              src="https://images.pexels.com/photos/4172933/pexels-photo-4172933.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              alt=""
-              className="widgetLgImg"
-            />
-            <span className="widgetLgName">Susan Carol</span>
-          </td>
-          <td className="widgetLgDate">2 Jun 2021</td>
-          <td className="widgetLgAmount">$122.00</td>
-          <td className="widgetLgStatus">
-            <Button type="Approved" />
-          </td>
-        </tr>
+
+        {Orders.length !== 0 && Orders.map((item, i) => {
+          return (
+            <tr className="widgetLgTr" key={i}>
+              <td className="widgetLgUser">
+                <img
+                  src={"http://localhost:5000/" + item.userId.dp}
+                  alt="user image"
+                  className="widgetLgImg"
+                />
+                <span className="widgetLgName">{item.shipping.name}</span>
+              </td>
+              <td className="widgetLgDate">{format(new Date(item.createdAt), " d-mm-yyyy")}</td>
+              <td className="widgetLgAmount">₹{(item.subtotal)/100}</td>
+              <td className="widgetLgStatus">
+                <Button type="Approved" >{item.payment_status}</Button>
+              </td>
+            </tr>
+          )
+        })}
       </table>
     </div>
   );

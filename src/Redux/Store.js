@@ -6,9 +6,7 @@ const middleware=[thunk];
 
 const store=configureStore({
     reducer:reducer,
-    
 },applyMiddleware(...middleware));
-
 
 
 

@@ -11,13 +11,18 @@ import InstructorTemplate from '../Multiuse_Pages/InstructorTemplate';
 import Reviewpage from '../Multiuse_Pages/Reviewpage';
 import Contactpage from './FooterPage';
 import axios from 'axios';
-import { Player } from "react-tuby"
-import { useParams } from 'react-router-dom';
-import { format, parseISO } from 'date-fns';
+import { useNavigate, useParams } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { loadStripe } from '@stripe/stripe-js';
+import { useSelector } from 'react-redux';
+import { CircularProgress } from '@mui/material';
+
 
 function Online_Course_overview() {
     const params = useParams();
-    const [course, setCourse] = useState({});
+    const courses = useSelector(state => state.My_learnings);
+    const [course, setCourse] = useState(null);
+    const navigate = useNavigate();
 
     const [Screen_small, setScreen_small] = useState(false);
     useEffect(() => {
@@ -35,7 +40,7 @@ function Online_Course_overview() {
 
     const [page, setPage] = useState(0);
 
-    
+
 
     function ChangeBgColor() {
         switch (page) {
@@ -80,46 +85,62 @@ function Online_Course_overview() {
         async function get_course_Details() {
             console.log("invoked...");
             await axios.get("http://localhost:5000/get_single_course?id=" + params.id,).then(data => {
-                setCourse({ ...data.data[0] });
-                console.log(data.data);
+                setCourse(data.data[0]);
             }).catch(err => {
                 console.log(err);
             })
         }
         get_course_Details();
     }, [])
-    const parsedDate = parseISO(course.Deadline ? course.Deadline : "19-03-2023");
     function Info_toggler() {
         switch (page) {
             case 1:
-                return <Overview_course_desc Course_desc={course.course_description} course_gains={course.learning_objs} course_requirements={course.requirements}/>
+                return <Overview_course_desc Course_desc={course.course_description} course_gains={course.learning_objs} course_requirements={course.requirements} />
             case 2:
                 return <CuriculmTemp circulum={course.curriculm} />
             case 3:
-                return <InstructorTemplate />
+                return <InstructorTemplate description={course.course_description} learning_objs={course.learning_objs} creatorobj={course.creator} />
             case 4:
-                return <Reviewpage  id={course._id} reviews={course.Reviews}/>
+                return <Reviewpage id={course._id} reviews={course.Reviews} />
             default:
-                return <Overview_course_desc Course_desc={course.course_description} course_gains={course.learning_objs} course_requirements={course.requirements}/>
+                return <Overview_course_desc Course_desc={course.course_description} course_gains={course.learning_objs} course_requirements={course.requirements} />
 
         }
 
-
     };
+
+    const stripePromise = loadStripe("pk_test_51NytQZSCR13VXk2t4xS5scD4w4R3pGSOYJnkvFd21myYOBWy8Iurot26oRpg03sam9shpg9jePFNk1CQ50LoZvSS00cDpJcctn");
+
+
+    const Buy_the_course = async () => {
+        try {
+            if (localStorage.getItem("token") && localStorage.getItem("userdata")) {
+                const res = await axios.post('http://localhost:5000/Buy_a_course_checkout', { name: "web development", id: course._id, userId: localStorage.getItem("id"), price: course.course_price, course_id: course._id });
+                const stripe = await stripePromise;
+                await stripe.redirectToCheckout({ sessionId: res.data.id });
+            } else {
+                toast.error("Login to buy the course");
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("Try to buy it later or check connection");
+        }
+    }
     return (
         <div className='course_main'>
             <Navbar />
+            <Toaster />
             {course && (
                 <>
                     <div className='course_overview'>
                         <div className='course_overView_left'>
                             <header className='course_overView_left_header'>
-                                <h1 className="course_overView_left_header_heading" style={{ marginLeft: "0px", overflow: "clip" }}><span style={{ color: "#05386b", padding: "1px" }}>Web Design and graphics Learning Bootcamp 2023</span></h1>
+                                <h1 className="course_overView_left_header_heading" style={{ marginLeft: "0px", overflow: "clip" }}><span style={{ color: "#05386b", padding: "1px" }}>{course.course_name}</span></h1>
                                 <div className='course_details_overview'>
-                                    <img className='image_owner' width="60px" height="60px" src={Img} alt='course_creator' />
+                                    <img className='image_owner' width="60px" height="60px" src={"http://localhost:5000/" + course.creator.instructor_pic} alt='course_creator' />
                                     <div className='course course_createdby'>
                                         <strong className='item_sub_title'>Created by</strong>
-                                        <span style={{ color: "black" }} className='course_creator_name'>Lalith kumar</span>
+                                        <span style={{ color: "black" }} className='course_creator_name'>  {course.creator?.instructor_name || 'Unknown Instructor'}</span>
                                     </div>
                                     <div className='course course_category'>
                                         <strong className='item_sub_title'>Categories</strong>
@@ -128,7 +149,7 @@ function Online_Course_overview() {
                                     <div className='course course_reviews'>
                                         <strong className='item_sub_title'>Reviews</strong>
                                         <div className='course_reviews_ratings' style={{ color: "black" }}>
-                                            <span className="course_review_count">4.97(8.3k+ Reviews)</span>
+                                            <span className="course_review_count">({Array.isArray(course.Reviews) && course.Reviews.length} Reviews)</span>
                                         </div>
                                     </div>
 
@@ -155,8 +176,8 @@ function Online_Course_overview() {
                         </div>
                         <div className='course_overView_right'>
                             <div className='price_indicator'>
-                                <span className='price'>${course.course_price}
-                                    <span className='total_price'>${course.course_actual_price}</span>
+                                <span className='price'>₹{course.course_price}
+                                    <span className='total_price'>₹{course.course_actual_price}</span>
                                 </span>
 
                                 <span className='offer_cutprice'>70%off</span>
@@ -164,14 +185,20 @@ function Online_Course_overview() {
 
                             <div className='course_video_layout'>
 
-                                <video src={course.course_intro_video?"http://localhost:5000/"+ course.course_intro_video:videodemo} controls  className='video' width={"90%"} height={"200px"}/>
-                                {/* <Player dimensions={{ height: "260px", width: "90%" }} pictureInPicture={true} className="video" poster={course.course_thumbnail?course.course_thumbnail:""} src={course.course_intro_video?"http://localhost:5000/"+ course.course_intro_video:videodemo} /> */}
-                                <button className='buy_now_button buttons'>
-                                    Buy Now
-                                </button>
-                                <button className='add_wish_button buttons'>
-                                    Add to Wishlist
-                                </button>
+                                <video src={course.course_intro_video ? "http://localhost:5000/" + course.course_intro_video : videodemo} controls className='video' width={"90%"} height={"200px"} />
+                                {
+                                    Array.isArray(courses) && courses.some((it) => it._id === course._id) ? (
+                                        <button className='buy_now_button buttons' onClick={() => navigate(`/courseplayer/${params.id}`)} style={{ marginTop: "10px" }}>
+                                            Open course
+                                        </button>
+                                    ) : (
+                                        <button className='buy_now_button buttons' onClick={Buy_the_course} style={{ marginTop: "10px" }}>
+                                            Buy Now
+                                        </button>
+                                    )
+                                }
+
+
 
 
                             </div>
@@ -181,7 +208,7 @@ function Online_Course_overview() {
                                     <span className='course_meta_icon'><TimerRounded />
                                         <span className='course_meta_item_name'>Duration</span>
                                     </span>
-                                    <span className='meta_value'>{10} Weeks</span>
+                                    <span className='meta_value'>{(course.course_duration&&course.course_duration.length)} {course.course_duration&&course.course_duration.field}</span>
 
                                 </div>
                             </div>
@@ -202,7 +229,7 @@ function Online_Course_overview() {
                                     <span className='course_meta_icon'><TimerRounded />
                                         <span className='course_meta_item_name'>Enrolled</span>
                                     </span>
-                                    <span className='meta_value'>1992 students</span>
+                                    <span className='meta_value'>{course.creator.total_students} students</span>
 
                                 </div>
                             </div>
@@ -236,8 +263,7 @@ function Online_Course_overview() {
                                         <span className='course_meta_item_name'>Deadline</span>
                                     </span>
                                     <span className='meta_value'>
-                                        {/* {format(parsedDate, 'MMMM dd, yyyy') */}
-                                        29-09-2020
+                                        {new Date(course.Deadline).toLocaleDateString()}
                                     </span>
 
                                 </div>
@@ -257,7 +283,7 @@ function Online_Course_overview() {
                             <div className='course_video_meta_data  share_button'>
                                 <div className='share_button_inner'>
                                     <span className='share_meta_icon'><ShareSharp />
-                                        <span className='share_meta_item_name'>Share This Course</span>
+                                        <span className='share_meta_item_name' onClick={() => { navigator.share({ title: course.course_name, text: course.course_description, url: window.location }) }}>Share This Course</span>
                                     </span>
 
 
@@ -273,10 +299,7 @@ function Online_Course_overview() {
 
                                         })
                                     }
-                                    {/* <button className='tags_button'>Web Design</button>
-                            <button className='tags_button'>Graphic Design</button>
-                            <button className='tags_button'>Ux Design</button>
-                            <button className='tags_button'>Software Design</button> */}
+
                                 </div>
 
 
@@ -287,6 +310,7 @@ function Online_Course_overview() {
 
 
                     </div>
+
                     {
                         !Screen_small ? "" : (
                             <>
@@ -301,12 +325,16 @@ function Online_Course_overview() {
                                 }</>
                         )
                     }
-                    <Feautured_courses heading={"Related Courses"} desc={"Discover top courses from below"} titleBoolean={false} />
+                    <Feautured_courses heading={"Related Courses"} desc={"Discover top courses from below"} titleBoolean={false} id={course._id} />
                     <Contactpage />
                 </>)
             }
 
-
+            {course === null && (
+                <div style={{ margin: "0 auto", marginTop: "30px" }}>
+                    <CircularProgress />
+                </div>
+            )}
 
 
 

@@ -44,8 +44,6 @@ function Bookshopping() {
                         books.length > 0 ? books.map((item, i) => {
                             return <Bookcard backdrop={"http://localhost:5000/" + item.book_pics[0]} id={item._id} name={item.title} aboutbook={item.description} acualcost={item.book_price} discountcost={item.book_actual_price} admin={false} key={i} />
                         }) : <CircularProgress color='primary'/>
-                        // books.map((b) => (<Bookcard name={b.title} aboutbook={b.subtitle} key={b.isbn} acualcost={b.price + 10} discountcost={b.price} />
-                        //     ))
                     }
 
                 </div>

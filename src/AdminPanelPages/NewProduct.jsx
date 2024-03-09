@@ -18,6 +18,7 @@ function NewProduct() {
   const handleTags = (tags) => {
     setTags(tags);
   }
+  
   return (
     <div className='new_book'>
       <h2>Add New Book</h2>

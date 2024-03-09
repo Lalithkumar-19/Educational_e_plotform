@@ -27,6 +27,8 @@
         display: flex;
         flex-direction: row;
         width: 100%;
+        align-items: center;
+        justify-content: center;
         gap: 15px;
 
         .checkout_page_main_left {
@@ -79,7 +81,7 @@
         .checkout_page_main_right {
             display: flex;
             flex-direction: column;
-            width: 30%;
+            width: 80%;
             padding: 0 20px;
             background-color: white;
             margin-top: 16px;

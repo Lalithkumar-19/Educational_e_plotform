@@ -1,6 +1,5 @@
 import React from 'react'
 import "../Multiuse_Pages/Bookcard.css";
-import Book2 from "../assets/Book2.jpg";
 import { useDispatch } from 'react-redux';
 import { Toaster, toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -10,10 +9,13 @@ import EditBook_modal from '../Modals/EditBook_modal';
 function Bookcard({ id, backdrop, name, acualcost, discountcost, aboutbook, admin }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const addtocart = (name, price,) => {
-        dispatch({ type: "ADD_TO_BASKET", payload: { itemname: name, price: price } });
-        toast.success("Item added Successfully");
-        console.log("add to cart called")
+    const addtocart = () => {
+        if (localStorage.getItem("token" && localStorage.getItem("userdata"))) {
+            dispatch({ type: "ADD_TO_CART", payload: { id: id } });
+            toast.success("Added succesffully");
+        }else{
+            toast.error("Please login to proceed..")
+        }
     }
     return (
         <div className='bookcard' >
@@ -38,14 +40,14 @@ function Bookcard({ id, backdrop, name, acualcost, discountcost, aboutbook, admi
                     !admin ? (
                         <>
                             <div className='book_buttons'>
-                                <button className='add_to_card' onClick={() => addtocart(name, discountcost)} >Add to Card</button>
+                                <button className='add_to_card' onClick={addtocart} >Add to Card</button>
                                 <span className='review_stars'>
                                     ⭐ ⭐ ⭐ ⭐ ⭐
                                 </span>
                             </div>
 
                         </>
-                    ) : <EditBook_modal id={id}/>
+                    ) : <EditBook_modal id={id} />
                 }
 
 

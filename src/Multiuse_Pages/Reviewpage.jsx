@@ -5,8 +5,7 @@ import Rating from '@mui/material/Rating';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 function Reviewpage({ id, reviews }) {
-
-
+    const [review_limit, setLimit] = useState(1);
 
     const [data, setData] = useState({
         rating: "",
@@ -15,32 +14,42 @@ function Reviewpage({ id, reviews }) {
 
     console.log(data);
 
+
     const handle_Add_Review = async () => {
 
+
         if (data.rating !== "" && data.review_content !== "") {
-            try {
-                await axios.post("http://localhost:5000/add_course_review?id=" + id, data, {
-                    withCredentials: true,
-                }).then((res) => {
-                    if (res.status === 200) {
-                        toast.success("Successfully Review Added");
-                        setData({
-                            rating: "",
-                            review_content: ""
-                        })
-                    }
-                    else {
-                        toast.error("There is something wrong..try later");
-                    }
-                }).catch(err => {
-                    toast.error("Internal server error occured ");
-                    console.log("error is ", err);
+            if ((localStorage.getItem("token") !== null) && localStorage.getItem("username") !== null) {
 
-                })
+                try {
+                    await axios.post("http://localhost:5000/add_course_review?id=" + id, data, {
+                        withCredentials: true,
+                    }).then((res) => {
+                        if (res.status === 200) {
+                            toast.success("Successfully Review Added");
+                            setData({
+                                rating: "",
+                                review_content: ""
+                            })
+                        }
+                        else {
+                            toast.error("There is something wrong..try later");
+                        }
+                    }).catch(err => {
+                        toast.error("Internal server error occured ");
+                        console.log("error is ", err);
 
-            } catch (error) {
-                console.log("There is a error occured", error)
+                    })
+
+                } catch (error) {
+                    console.log("There is a error occured", error)
+                }
             }
+            else {
+                toast.error("please login to proceed");
+            }
+
+
         }
         else {
             toast.error("PLease fill all fields");
@@ -56,7 +65,7 @@ function Reviewpage({ id, reviews }) {
                     <span style={{ fontSize: "30px", textAlign: "center" }} className='rating_number'>4.7</span>
                     <p style={{ marginTop: "2px" }}> ⭐⭐⭐⭐⭐
                         <br />
-                        (14 Reviews)
+                        ({Array.isArray(reviews)&&reviews.length} Reviews)
                     </p>
 
                 </section>
@@ -97,77 +106,35 @@ function Reviewpage({ id, reviews }) {
             <div className='recent_reviews'>
                 <h1 className='recent_reviews_title'>Recent Review</h1>
                 <section className='main_reviews'>
-                    <div className='student_reviews_left_box'>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur eum quis minus expedita, et, excepturi doloribus quibusdam unde, praesentium quaerat commodi sint delectus. Saepe beatae repellendus voluptatum a temporibus reiciendis.</p>
-                        <div className='student_details'>
-                            <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="student" />
 
-                            <span className='about_student'>
-                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Harshu Reddy
-                                    <p style={{ margin: "1px", textAlign: "center", width: "15px" }}>Student</p>
-                                </span>
-
-                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4.5⭐</p>
-                            </span>
-                        </div>
-                    </div>
 
                     {
                         reviews && Array.isArray(reviews) && reviews.map((item, i) => {
-                            return (
-                                <div className='student_reviews_left_box' key={i}>
-                                    <p>{item.review_content}</p>
-                                    <div className='student_details'>
-                                        <img src={item.reviwer_details.dp} alt="student" />
+                            if (i !== (review_limit-1)) {
+                                return (
+                                    <div className='student_reviews_left_box' key={i}>
+                                        <p>{item.review_content}</p>
+                                        <div className='student_details'>
+                                            <img src={"http://localhost:5000/" + item.reviwer_details.dp} alt="student" />
 
-                                        <span className='about_student'>
-                                            <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>{item.reviwer_details.name}
-                                                <p style={{ margin: "1px", textAlign: "start", width: "auto" }}>{item.reviwer_details.profession}</p>
+                                            <span className='about_student'>
+                                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>{item.reviwer_details.name}
+                                                    <p style={{ margin: "1px", textAlign: "start", width: "auto" }}>{item.reviwer_details.profession}</p>
+                                                </span>
+
+                                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>{item.rating}⭐</p>
                                             </span>
-
-                                            <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>{item.rating}⭐</p>
-                                        </span>
+                                        </div>
                                     </div>
-                                </div>
-                            )
+                                )
+                            }
                         })
                     }
-                    {/* secondone */}
-                    <div className='student_reviews_left_box'>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur eum quis minus expedita, et, excepturi doloribus quibusdam unde, praesentium quaerat commodi sint delectus. Saepe beatae repellendus voluptatum a temporibus reiciendis.</p>
-                        <div className='student_details'>
-                            <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="student" />
 
-                            <span className='about_student'>
-                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Harshu Reddy
-                                    <p style={{ margin: "1px", textAlign: "center", width: "15px" }}>Student</p>
-                                </span>
-
-                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4.5⭐</p>
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* thirdone */}
-
-                    <div className='student_reviews_left_box'>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur eum quis minus expedita, et, excepturi doloribus quibusdam unde, praesentium quaerat commodi sint delectus. Saepe beatae repellendus voluptatum a temporibus reiciendis.</p>
-                        <div className='student_details'>
-                            <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="student" />
-
-                            <span className='about_student'>
-                                <span className='student_name' style={{ width: "150px", marginLeft: "0px" }}>Harshu Reddy
-                                    <p style={{ margin: "1px", textAlign: "center", width: "15px" }}>Student</p>
-                                </span>
-
-                                <p className='student_rating' style={{ backgroundColor: "maroon", width: "50px", color: "white", textAlign: "center" }}>4.5⭐</p>
-                            </span>
-                        </div>
-                    </div>
                 </section>
                 <div className='all_Reviews'>
-                    <button className='click_button'>
-                        See All <span><TrendingUp /></span>
+                    <button className='click_button' onClick={()=>{setLimit(review_limit+5)}}>
+                        Load more <span><TrendingUp /></span>
                     </button>
 
 

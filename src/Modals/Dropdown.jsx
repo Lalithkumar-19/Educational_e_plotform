@@ -16,6 +16,7 @@ export default function Dropdown() {
   const handle_Logout = () => {
     localStorage.removeItem("userdata");
     localStorage.removeItem("token");
+    localStorage.removeItem("id");
     window.location.reload();
     setAnchorEl(null);
   }
@@ -43,6 +44,8 @@ export default function Dropdown() {
       >
         <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/profile"}>My Profile</Link></MenuItem>
         <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/myorders"}>Orders</Link></MenuItem>
+        <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/yourWishlist"}>Wishlist</Link></MenuItem>
+        <MenuItem onClick={handleClose} sx={{ marginTop: "10px" }}> <Link to={"/MyLearnings"}>My Learnings</Link></MenuItem>
         <MenuItem onClick={handle_Logout} sx={{ marginTop: "10px" }}>Logout</MenuItem>
 
       </Menu>

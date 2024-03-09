@@ -1,49 +1,113 @@
 import React, { useEffect, useState } from 'react';
 import "./Blogviewer.css";
 import Navbar from '../Pages/Navbar';
-import Developerpic from "../assets/developerpic.jpg";
 import { CalendarMonthOutlined, FacebookRounded, Instagram, Person3Outlined, SearchOutlined, Twitter } from '@mui/icons-material';
 import Comment_Temp from './Comment_Temp';
 import { CircularProgress } from '@mui/material';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
+import { format } from 'date-fns';
+import toast, { Toaster } from 'react-hot-toast';
 function Blogviewer() {
-    const [comments_data, setComments_data] = useState([]);
+
+    const [comment, setComment] = useState("");
+    const [data, setData] = useState(null);
+    const { id } = useParams();
+    const [posts, setPosts] = useState([]);
+    const navigate = useNavigate();
+
     useEffect(() => {
-        setTimeout(async () => {
-            await fetch("https://dummyjson.com/comments?limit=4").then((data) => data.json()).then((succ) => setComments_data(succ.comments)).catch(err => console.log(err));
+        async function fetchblog() {
+            await axios.get("http://localhost:5000/fetchOneblog?id=" + id).then((res) => {
+                setData(res.data);
+            }).catch(err => console.log(err));
+        }
+        fetchblog();
+    }, [id])
 
-        }, 2000);
 
-    }, [])
+    useEffect(() => {
+        async function Fetch_posts() {
+            await axios.get("http://localhost:5000/blogs?limit=4").then((result) => {
+                setPosts(result.data);
+            }).catch(err => console.log(err));
+        };
+        Fetch_posts();
+    }, []);
 
+
+    async function Loadcomments() {
+        try {
+            const res = await axios.get("http://localhost:5000/load_comments?blogId=" + id);
+            if (res.status === 200) {
+                setData({ ...data, comments: res.data });
+            }
+            else {
+                toast.error("comments loading failed..")
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    const handle_Comment = async () => {
+        try {
+            if (comment !== "") {
+                const res = await axios.post(`http://localhost:5000/writeComment?token=${localStorage.getItem("token")}&blogId=${data._id}`, { commented_content: comment });
+                if (res.status == 201) {
+                    toast.success("comment added successfully");
+                    setComment("");
+                    Loadcomments();
+
+                }
+                else {
+                    toast.error("comment is not added , try again !");
+                }
+            } else {
+                toast.error("fill the comment before posting")
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("internal sever error occured")
+        }
+    }
     return (
         <div className='blogviewer'>
             <Navbar />
+            <Toaster position='bottom-right' />
             <section className='blogviewer_main_headings'>
                 <span className='main_heading' style={{ color: "black", fontSize: "22px", fontWeight: "700", marginBottom: "10px" }}>Blogs Details</span>
                 <span className='sub_heading'>Home/<span style={{ color: "coral" }}>Blog</span></span>
             </section>
-            <div className='blogviewer_main'>
+            {data && <div className='blogviewer_main'>
+
                 <div className="blogviewer_left" >
                     <section className='blogviewer_backdrop'>
-                        <img width={"100%"} height={"100%"} style={{ objectFit: "fill", borderRadius: "20px" }} src={Developerpic} alt='blog_Pic' />
+                        <img width={"100%"} height={"100%"} style={{ objectFit: "fill", borderRadius: "20px" }} src={"http://localhost:5000/" + data.backdrop} alt='blog_Pic' />
                     </section>
                     <section className='blogviewer_left_headings'>
-                        <span className='blog_heading' style={{ fontSize: "20px", fontWeight: "700" }}>Good Developer</span>
+                        <span className='blog_heading' style={{ fontSize: "20px", fontWeight: "700" }}>{data.name}</span>
                         <div className='blog_posting_details'>
-                            <span style={{ textAlign: "center", display: "flex", alignItems: "center" }}><Person3Outlined /> By Admin  </span>
-                            <span style={{ textAlign: "center", display: "flex", alignItems: "center", fontSize: "12px" }}><CalendarMonthOutlined />March 7th 2022</span>
+                            <span style={{ textAlign: "center", display: "flex", alignItems: "center" }}><Person3Outlined /> By {data.author.name} </span>
+                            <span style={{ textAlign: "center", display: "flex", alignItems: "center", fontSize: "12px" }}><CalendarMonthOutlined />
+                                {format(new Date(data.posted_Date), "dd eeee yyyy")}
+                            </span>
 
                         </div>
                     </section>
 
                     <section className='blogviewer_blog_details'>
-                        <p style={{ textAlign: "justify", opacity: ".8", padding: "6px" }}>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aperiam quos est magni repellat saepe sequi consequuntur laudantium iste! Voluptates velit quod harum placeat omnis eius beatae recusandae explicabo sequi inventore facere, temporibus fugit. Ea consectetur, officiis tempora similique at tenetur rem id ipsam fugit dolorem tempore sed incidunt velit sint veniam nulla hic quidem nisi voluptate vitae aliquid aspernatur! Voluptate adipisci, veritatis id blanditiis sed vel facilis enim voluptatibus, sit suscipit delectus eveniet. Et aliquam error, numquam blanditiis dolor maiores non doloribus totam animi laboriosam magnam, vel accusamus exercitationem neque voluptate libero harum earum? Repellat fuga ducimus dolores atque id, tempora molestiae corporis animi quibusdam, et distinctio neque voluptatibus sequi quae sapiente facilis quasi. Libero velit sapiente recusandae quos iure!</p>
+                        <p style={{ textAlign: "justify", opacity: ".8", padding: "6px" }}>Lo
+                            <div dangerouslySetInnerHTML={{ __html: data.content.slice(0, data.content.length - 300) }} />
+                        </p>
 
-                        <p style={{ textAlign: "justify", opacity: ".8", padding: "5px" }}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui molestias nesciunt iusto ullam quia laborum animi, eveniet, earum at fuga numquam odio quo illum nemo impedit, enim recusandae aspernatur accusantium suscipit quis? Ut in blanditiis asperiores? Autem aut excepturi vel, quia tempore illum? Recusandae, assumenda. Dicta culpa suscipit provident eum.</p>
+                        {/* <p style={{ textAlign: "justify", opacity: ".8", padding: "5px" }}>
+                        </p> */}
                     </section>
                     <section className='blogviewer_main_blog_details'>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis exercitationem dolorum commodi vitae at expedita voluptate cupiditate minima sapiente ipsam aut labore facilis veniam, explicabo error earum soluta natus accusantium!
-                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Commodi repellat odio expedita eaque asperiores, esse, harum, ipsa ducimus vel quae vitae adipisci labore quasi quis quas autem. Voluptates, in provident.
+                        <div dangerouslySetInnerHTML={{ __html: data.content.slice(data.content.length - 300, data.content.length) }} />
                     </section>
 
                     <footer className='blogviewer_left_end_options'>
@@ -55,22 +119,31 @@ function Blogviewer() {
 
                         </div>
                         <div className='blogviewer_left_end_tagscloud'>
-                            <button id="button"style={{ backgroundColor: "coral", color: "white", border: "none", width: "auto", height: "40px" }} >UI Design</button>
-                            <button id="button" style={{ backgroundColor: "coral", color: "white", border: "none", width: "auto", height: "40px" }} >Graphic Design</button>
-                            <button id="button"style={{ backgroundColor: "coral", color: "white", border: "none", width: "auto", height: "40px" }} >Web Design</button>
+                            {
+                                data.categories.length > 0 ? (
+                                    data.categories.map((item, i) => {
+                                        return <button id="button" style={{ backgroundColor: "coral", color: "white", border: "none", width: "auto", height: "40px" }} key={i} >{item}</button>
+
+                                    })
+                                ) : " loading..."
+                            }
+
 
                         </div>
                     </footer>
                     <span style={{ color: "black", fontSize: "17px", fontWeight: "700", marginRight: "30px", marginTop: "20px" }}>Recent Comments</span>
-
-                    {
-                        comments_data ? (
-                            comments_data.map((d) => <Comment_Temp name={d.user.username} commented_text={d.body + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui molestias nesciunt iusto ullam quia laborum animi, eveniet, earum at fuga numquam odio quo illum nemo impedit, enim recusandae aspernatur accusantium suscipit quis? Ut in blanditiis asperiores? Autem aut excepturi vel"} posted_date={"March 26,2020 4.30 am"} key={d.postId} />)
-                        ) : <div style={{ margin: "30px auto" }}><CircularProgress /></div>
-                    }
-
+                    <div className='Add_comment_box'>
+                        <input className='comment_input' type='text' value={comment} onChange={(e) => setComment(e.target.value)} placeholder='write your comment' />
+                        <button className='comment_submit_button' type='button' onClick={handle_Comment} >Post</button>
+                    </div>
+                    {Array.isArray(data.comments) && data.comments.map((item) => {
+                        return <Comment_Temp name={item.commenter_details.name} blogid={data._id} set_data={setData} data={data} liked_people={item.liked_users} id={item._id} likes={item.likes} commented_text={item.commented_content} posted_date={format(new Date(item.createdAt), "dd eeee yyyy")} key={item._id} img={item.commenter_details.dp} />
+                    })}
+                    {Array.isArray(data.comments)&&data.comments.length===0&&"No comments till now"}
 
                 </div>
+
+
                 <div className="blogviewer_right">
                     <section className='blogviewer_right_search_bar'>
                         <input className='search_input' placeholder='Search...' /><span className='search_icon' style={{ color: "white", backgroundColor: "coral", height: "100%", width: "60px" }}><SearchOutlined /></span>
@@ -78,90 +151,70 @@ function Blogviewer() {
                     <section className="categories">
                         <span style={{ color: "black", fontWeight: "700", fontSize: "18px" }}>Categories</span>
                         <div className='categories_list'>
-                            <li id='categoty_item'>Photoshop</li>
-                            <li className='categoty_item'>Graphic Design</li>
-                            <li className='categoty_item'>Mobile Development</li>
-                            <li className='categoty_item'>App Design</li>
-                            <li className='categoty_item'>Marketing</li>
+                            {
+                                data.categories.length > 0 ? (
+                                    data.categories.map((item, i) => {
+                                        return <li className='categoty_item' key={i}>{item}</li>
+
+                                    })
+                                ) : " loading..."
+                            }
 
                         </div>
                     </section>
                     <section className='popular_posts'>
                         <h2 >Popular Posts</h2>
                         <div className='all_popular_posts'>
-                            <div className='post'>
-                                <div className='post_pic'>
-                                    <img src={Developerpic} width={"100%"} height={"100%"} style={{ objectFit: "cover", borderRadius: "8px" }} alt="post_profile" />
-                                </div>
-                                <div className='post_details'>
-                                    <p className='About_post'>Lets work how its work with all the special  brothers and sisiters ..... </p>
-                                    <small>Posted on 5th June, 2020 </small>
-                                </div>
 
-                            </div>
-                            {/* seocndone */}
-                            <div className='post'>
-                                <div className='post_pic'>
-                                    <img src={Developerpic} width={"100%"} height={"100%"} style={{ objectFit: "cover", borderRadius: "8px" }} alt="post_profile" />
-                                </div>
-                                <div className='post_details'>
-                                    <p className='About_post'>Lets work how its work with all the special  brothers and sisiters ..... </p>
-                                    <small>Posted on 5th June, 2020 </small>
-                                </div>
+                            {
+                                posts.length !== 0 ? (
+                                    posts.map((item, i) => {
+                                        if (item._id != data._id) {
+                                            return (
+                                                <div className='post' key={i} onClick={() => navigate("/selectedblog/" + item._id)}>
+                                                    <div className='post_pic'>
+                                                        <img src={"http://localhost:5000/" + item.backdrop} width={"100%"} height={"100%"} style={{ objectFit: "cover", borderRadius: "8px" }} alt="post_profile" />
+                                                    </div>
+                                                    <div className='post_details'>
+                                                        <p className='About_post'>{item.name} </p>
+                                                        <small>Posted on {format(new Date(item.posted_Date), "MM-dd-yyyy")} </small>
+                                                    </div>
 
-                            </div>
-                            {/* tihrdone */}
-                            <div className='post'>
-                                <div className='post_pic'>
-                                    <img src={Developerpic} width={"100%"} height={"100%"} style={{ objectFit: "cover", borderRadius: "8px" }} alt="post_profile" />
-                                </div>
-                                <div className='post_details'>
-                                    <p className='About_post'>Lets work how its work with all the special  brothers and sisiters ..... </p>
-                                    <small>Posted on 5th June, 2020 </small>
-                                </div>
+                                                </div>
+                                            )
+                                        }
 
-                            </div>
-
-                            {/* fouthone */}
-                            <div className='post'>
-                                <div className='post_pic'>
-                                    <img src={Developerpic} width={"100%"} height={"100%"} style={{ objectFit: "cover", borderRadius: "8px" }} alt="post_profile" />
-                                </div>
-                                <div className='post_details'>
-                                    <p className='About_post'>Lets work how its work with all the special  brothers and sisiters ..... </p>
-                                    <small>Posted on 5th June, 2020 </small>
-                                </div>
-
-                            </div>
-
-
-
+                                    })
+                                ) : <CircularProgress />
+                            }
 
                         </div>
                     </section>
                     <section className='tags_cloud'>
                         <span style={{ color: "black", fontWeight: "700", fontSize: "18px" }}>Tags Cloud</span>
                         <div className='all_buttons'>
-                            <button id='button'>UI Design</button>
-                            <button id="button">Web Design</button>
-                            <button id="button">Graphic Design</button>
-                            <button id="button">UX Design</button>
+                            {
+                                data.Tags.length > 0 ? (
+                                    data.Tags.map((item, i) => {
+                                        return <button id='button' key={i}>{item}</button>
+                                    })
+                                ) : " loading..."
+                            }
 
                         </div>
                     </section>
-
                     <section className='news_letter_mail'>
                         <p className='news_letter_headline'>Get the latest post & article in your email</p>
                         <input className='email_input' type='email' placeholder='Enter your Email address' />
                         <button id="button" className='subscribe_button'>Subscribe</button>
                     </section>
-
-
-
                 </div>
 
             </div>
-
+            }
+            <div style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center" }}>
+                {data === null ? <CircularProgress /> : ""}
+            </div>
         </div>
     )
 }

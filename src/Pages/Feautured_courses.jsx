@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import "../Styles/featured_courses.css";
 import Coursecard from './Coursecard';
 import axios from 'axios';
+import { CircularProgress } from '@mui/material';
 
-function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
-    const keys = [1, 2];
+function Feautured_courses({ heading, desc, titleBoolean, courses_restrict, id }) {
     const [courses, setCourses] = useState([]);
     useEffect(() => {
         async function Load_data() {
@@ -28,78 +28,56 @@ function Feautured_courses({ heading, desc, titleBoolean, courses_restrict }) {
             </div>
 
             <div className='courses_box'>
-                {keys ? (
-                    <>
-                        {keys.map((m, index) => {
-                            { console.log('M', m) }
-                            return <Coursecard id={m} />
-                        })}
-                    </>
-                ) : ""}
+
 
 
 
                 {
 
-                    courses.map((item,index) => {
-                        return (
-                            <>
-                                {
-                                    item && <Coursecard course_thumnail={item.course_thumbnail}
-                                        course_duration={item.course_duration}
-                                        course_name={item.course_name}
-                                        course_price={item.course_price}
-                                        id={ item._id}
-                                        skill_level={item.skill_level}
-                                        course_lectures={item.course_lectures}
-                                        key={index}
+                    courses.map((item, index) => {
+                        if (item._id !== id) {
+                            return (
+                                <>
+                                    {
+                                        item && <Coursecard course_thumnail={item.course_thumbnail}
+                                            course_duration={item.course_duration}
+                                            course_name={item.course_name}
+                                            course_price={item.course_price}
+                                            id={item._id}
+                                            skill_level={item.skill_level}
+                                            course_lectures={item.course_lectures}
+                                            key={index}
+                                            creator={item.creator}
+                                            review_length={Array.isArray(item.Reviews) && item.Reviews.length}
 
-                                    />
-                                }
+                                        />
+                                    }
 
-                            </>
-                        )
+                                </>
+                            )
+                        }
+                        else {
+                            return (
+                                <>
+                                    <h1>No courses loaded</h1>
+                                </>
+                            )
+                        }
                     })
 
 
                 }
-                {/* {
-                    courses_restrict ? (
-                        <>
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard />
-                            <Coursecard /> */}
 
 
 
+            </div>{
+                courses.length === 0 && (
+                    <div style={{margin:"0 auto",marginTop:"40px"}}>
+                        <CircularProgress />
+                    </div>
 
-
-
-
-
-                {/* <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link>
-                            <Link to="/overview"><Coursecard />  </Link> */}
-                {/* </>
-                    ) : ""
-
-                } */}
-
-
-            </div>
+                )
+            }
 
             {/* <Contactpage />  */}
         </div>

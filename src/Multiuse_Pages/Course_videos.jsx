@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import "./Course_videos.css";
 import { DeleteForever, VideoFileOutlined } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 
 
 function Course_videos({ admin, curiculm, curr_video }) {
@@ -40,7 +41,7 @@ function Course_videos({ admin, curiculm, curr_video }) {
                                                         <div style={{paddingLeft:"3px"}}>
                                                             <span className='video_icon'><VideoFileOutlined /></span>
                                                             {
-                                                                !admin ? <input type='checkbox' className='course_status_check_box' /> : <span><DeleteForever sx={{ color: "coral", cursor: "pointer" }} /></span>
+                                                                !admin ? "": <span><DeleteForever sx={{ color: "coral", cursor: "pointer" }} /></span>
                                                             }
                                                         </div>
                                                     </div>
@@ -60,6 +61,9 @@ function Course_videos({ admin, curiculm, curr_video }) {
                         )
                     })
                 }
+                {!curiculm&&(
+                <div style={{margin:"0 auto"}}>    <CircularProgress/></div>
+                )}
 
 
 
